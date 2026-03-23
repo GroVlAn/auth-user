@@ -39,74 +39,23 @@ func (r *Repository) Create(ctx context.Context, user core.User) error {
 	return nil
 }
 
-func (r *Repository) GetByID(ctx context.Context, id string) (core.User, error) {
-	query := fmt.Sprintf(
-		`SELECT id, username, email, password_hash, fullname, created_at FROM %s 
-		WHERE id = $1`,
-		userTable,
-	)
-
-	var user core.User
-	err := r.db.GetContext(ctx, &user, query, id)
-	if err != nil {
-		return core.User{}, handleQueryError(fmt.Errorf(
-			"getting user by id: %w", err),
-			"user not found",
-		)
-	}
-
-	return user, nil
-}
-
-func (r *Repository) GetByUsername(ctx context.Context, username string) (core.User, error) {
+func (r *Repository) Get(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, username, email, password_hash, fullname, created_at FROM %s
-		WHERE username = $1`,
+		WHERE id = $1 OR username = $2 OR email = $3`,
 		userTable,
 	)
 
 	var user core.User
-	err := r.db.GetContext(ctx, &user, query, username)
+	err := r.db.GetContext(ctx, &user, query, userQuery.ID, userQuery.Username, userQuery.Email)
 	if err != nil {
 		return core.User{}, handleQueryError(fmt.Errorf(
-			"getting user by username: %w", err),
+			"getting user: %w", err),
 			"user not found",
 		)
 	}
 
 	return user, nil
-}
-
-func (r *Repository) GetByEmail(ctx context.Context, email string) (core.User, error) {
-	query := fmt.Sprintf(
-		`SELECT id, username, email, password_hash, fullname, created_at FROM %s
-		WHERE email = $1`,
-		userTable,
-	)
-
-	var user core.User
-	err := r.db.GetContext(ctx, &user, query, email)
-	if err != nil {
-		return core.User{}, handleQueryError(fmt.Errorf(
-			"getting user by email: %w", err),
-			"user not found",
-		)
-	}
-
-	return user, nil
-}
-
-func (r *Repository) BanUser(ctx context.Context, userID string) error {
-	query := fmt.Sprintf(
-		`UPDATE %s SET is_banned=true WHERE id=$1`,
-		userTable,
-	)
-
-	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
-		return e.NewErrInternal(err)
-	}
-
-	return nil
 }
 
 func (r *Repository) Exist(ctx context.Context, userQuery core.UserQuery) (bool, error) {
@@ -122,6 +71,19 @@ func (r *Repository) Exist(ctx context.Context, userQuery core.UserQuery) (bool,
 	}
 
 	return exist, nil
+}
+
+func (r *Repository) BanUser(ctx context.Context, userID string) error {
+	query := fmt.Sprintf(
+		`UPDATE %s SET is_banned=true WHERE id=$1`,
+		userTable,
+	)
+
+	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
+		return e.NewErrInternal(err)
+	}
+
+	return nil
 }
 
 func (r *Repository) UnbanUser(ctx context.Context, userID string) error {
