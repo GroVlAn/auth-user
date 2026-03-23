@@ -109,6 +109,21 @@ func (r *Repository) BanUser(ctx context.Context, userID string) error {
 	return nil
 }
 
+func (r *Repository) Exist(ctx context.Context, userQuery core.UserQuery) (bool, error) {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(SELECT 1 FROM %s WHERE id=$1 OR username=$2 OR email=$3)`,
+		userTable,
+	)
+
+	var exist bool
+	err := r.db.GetContext(ctx, &exist, query, userQuery.ID, userQuery.Username, userQuery.Email)
+	if err != nil {
+		return false, e.NewErrInternal(err)
+	}
+
+	return exist, nil
+}
+
 func (r *Repository) UnbanUser(ctx context.Context, userID string) error {
 	query := fmt.Sprintf(
 		`UPDATE %s SET is_banned=false WHERE id=$1`,
