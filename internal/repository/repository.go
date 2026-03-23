@@ -39,7 +39,7 @@ func (r *Repository) Create(ctx context.Context, user core.User) error {
 	return nil
 }
 
-func (r *Repository) Get(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
+func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, username, email, password_hash, fullname, created_at FROM %s
 		WHERE id = $1 OR username = $2 OR email = $3`,

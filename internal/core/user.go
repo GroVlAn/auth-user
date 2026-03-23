@@ -15,7 +15,7 @@ type User struct {
 	IsBanned     bool      `json:"is_banned" db:"is_banned"`
 }
 
-type UserRequest struct {
+type UserQuery struct {
 	ID       string `json:"id" valid:"optional"`
 	Username string `json:"username" valid:"optional"`
 	Email    string `json:"email" valid:"optional"`
