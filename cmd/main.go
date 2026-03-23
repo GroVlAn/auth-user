@@ -60,7 +60,7 @@ func main() {
 
 	r := repository.New(db)
 
-	s := service.New(r)
+	s := service.New(r, cfg.Settings.HashCost)
 
 	h := httphandler.New(s, l, httphandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,
