@@ -41,13 +41,20 @@ func (r *Repository) Create(ctx context.Context, user core.User) error {
 
 func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
 	query := fmt.Sprintf(
-		`SELECT id, username, email, password_hash, fullname, created_at FROM %s
+		`SELECT id, username, email, password_hash, fullname, created_at, is_superuser, is_banned, is_active FROM %s
 		WHERE id = $1 OR username = $2 OR email = $3`,
 		userTable,
 	)
 
 	var user core.User
-	err := r.db.GetContext(ctx, &user, query, userQuery.ID, userQuery.Username, userQuery.Email)
+	err := r.db.GetContext(
+		ctx,
+		&user,
+		query,
+		userQuery.ID,
+		userQuery.Username,
+		userQuery.Email,
+	)
 	if err != nil {
 		return core.User{}, handleQueryError(fmt.Errorf(
 			"getting user: %w", err),
@@ -79,6 +86,7 @@ func (r *Repository) BanUser(ctx context.Context, userID string) error {
 		userTable,
 	)
 
+	fmt.Println("ban user with id:", userID)
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
 		return e.NewErrInternal(err)
 	}

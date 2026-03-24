@@ -21,12 +21,8 @@ type GRPC struct {
 }
 
 type Settings struct {
-	TokenRefreshEndTTL time.Duration `env:"TOKEN_REFRESH_END_TTL" env-required:"true"`
-	TokenAccessEndTTL  time.Duration `env:"TOKEN_ACCESS_END_TTL" env-required:"true"`
-	SecretKey          string        `env:"SECRET_KEY"`
-	DefaultTimeout     time.Duration `yaml:"default_timeout"`
-	HashCost           int           `yaml:"hash_cost"`
-	DefaultRoleName    string        `yaml:"default_role_name"`
+	DefaultTimeout time.Duration `yaml:"default_timeout"`
+	HashCost       int           `yaml:"hash_cost"`
 }
 
 type PostgresSettings struct {

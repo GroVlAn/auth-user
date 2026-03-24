@@ -13,12 +13,12 @@ import (
 )
 
 const (
-	registerEndpoint       = "/user/register"
-	userEndpoint           = "/user"
-	inactivateUserEndpoint = "/user/inactivate"
-	restoreUserEndpoint    = "/user/restore"
-	banUserEndpoint        = "/user/ban"
-	unbanUserEndpoint      = "/user/unban"
+	registerEndpoint       = "/register"
+	userEndpoint           = "/"
+	inactivateUserEndpoint = "/inactivate"
+	restoreUserEndpoint    = "/restore"
+	banUserEndpoint        = "/ban"
+	unbanUserEndpoint      = "/unban"
 )
 
 func (h *HTTPHandler) userRoute(r chi.Router) {
@@ -85,8 +85,6 @@ func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
 			h.sendResponse(w, res, status)
 			return
 		}
-
-		w.WriteHeader(http.StatusOK)
 	})
 }
 

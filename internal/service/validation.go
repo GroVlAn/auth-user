@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/mail"
 	"strings"
 	"unicode"
@@ -45,8 +46,11 @@ func validateUser(user core.User) *e.ErrValidation {
 }
 
 func validatePassword(password string) (bool, string) {
-	if len(password) < minPasswordLen {
+	if len(password) == 0 {
 		return false, "password is required"
+	}
+	if len(password) < minPasswordLen {
+		return false, fmt.Sprintf("password is too short, minimum length is %d symbols", minPasswordLen)
 	}
 
 	var (
