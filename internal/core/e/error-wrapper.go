@@ -38,6 +38,14 @@ func NewErrConflict(err error, msg string) *ErrWrapper {
 	}
 }
 
+func NewErrUnauthorized(err error, msg string) *ErrWrapper {
+	return &ErrWrapper{
+		errType: ErrorTypeUnauthorized,
+		err:     err,
+		msg:     msg,
+	}
+}
+
 func NewErrInternal(err error) *ErrWrapper {
 	return &ErrWrapper{
 		errType: ErrorTypeInternal,

@@ -15,8 +15,20 @@ type User struct {
 	IsBanned     bool      `json:"is_banned" db:"is_banned"`
 }
 
+type UserInfo struct {
+	Username string `json:"username" db:"username" valid:"require"`
+	Email    string `json:"email" db:"email" valid:"require"`
+	Fullname string `json:"fullname" db:"fullname" valid:"require"`
+}
+
 type UserQuery struct {
 	ID       string `json:"id" valid:"optional"`
 	Username string `json:"username" valid:"optional"`
 	Email    string `json:"email" valid:"optional"`
+}
+
+type UserQueryNewPassword struct {
+	UserQuery
+	OldPassword string `json:"old_password" valid:"require"`
+	NewPassword string `json:"new_password" valid:"require"`
 }

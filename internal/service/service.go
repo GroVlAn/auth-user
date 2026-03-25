@@ -11,11 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type repo interface {
+type Repo interface {
 	Create(ctx context.Context, user core.User) error
 	User(ctx context.Context, userQuery core.UserQuery) (core.User, error)
-	BanUser(ctx context.Context, userID string) error
+	UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)
+	ChangePassword(ctx context.Context, userID, newPasswordHash string) error
 	Exist(ctx context.Context, userQuery core.UserQuery) (bool, error)
+	BanUser(ctx context.Context, userID string) error
 	UnbanUser(ctx context.Context, userID string) error
 	InactivateUser(ctx context.Context, userID string) error
 	RestoreUser(ctx context.Context, userID string) error
@@ -23,11 +25,11 @@ type repo interface {
 }
 
 type Service struct {
-	repo     repo
+	repo     Repo
 	hashCost int
 }
 
-func New(repo repo, hashCost int) *Service {
+func New(repo Repo, hashCost int) *Service {
 	return &Service{
 		repo:     repo,
 		hashCost: hashCost,
@@ -84,6 +86,49 @@ func (s *Service) User(ctx context.Context, userQuery core.UserQuery) (core.User
 	}
 
 	return user, nil
+}
+
+func (s *Service) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error) {
+	if err := s.validateUserQuery(userQuery); err != nil {
+		return core.UserInfo{}, fmt.Errorf("validating user query: %w", err)
+	}
+
+	userInfo, err := s.repo.UserInfo(ctx, userQuery)
+	if err != nil {
+		return core.UserInfo{}, fmt.Errorf("getting user info: %w", err)
+	}
+
+	return userInfo, nil
+}
+
+func (s *Service) ChangePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error {
+	if err := s.validateUserQuery(userQueryNewPassword.UserQuery); err != nil {
+		return fmt.Errorf("validating user query: %w", err)
+	}
+
+	user, err := s.repo.User(ctx, userQueryNewPassword.UserQuery)
+	if err != nil {
+		return fmt.Errorf("getting user: %w", err)
+	}
+
+	if ok, reason := validatePassword(userQueryNewPassword.NewPassword); !ok {
+		return e.NewErrValidation(reason)
+	}
+
+	if err := s.verifyOldPassword(userQueryNewPassword.OldPassword, user.PasswordHash); err != nil {
+		return fmt.Errorf("verifying password: %w", err)
+	}
+
+	newPasswordHash, err := passwordHash(userQueryNewPassword.NewPassword, s.hashCost)
+	if err != nil {
+		return fmt.Errorf("creating password hash: %w", err)
+	}
+
+	if err = s.repo.ChangePassword(ctx, user.ID, newPasswordHash); err != nil {
+		return fmt.Errorf("changing user password: %w", err)
+	}
+
+	return nil
 }
 
 func (s *Service) InactivateUser(ctx context.Context, userQuery core.UserQuery) error {
@@ -170,4 +215,13 @@ func (s *Service) validateUserQuery(userQuery core.UserQuery) *e.ErrValidation {
 
 	return err
 
+}
+
+func (s *Service) verifyOldPassword(oldPassword, newPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(newPassword), []byte(oldPassword))
+	if err == nil {
+		return e.NewErrValidation("new password must be different from old password")
+	}
+
+	return nil
 }

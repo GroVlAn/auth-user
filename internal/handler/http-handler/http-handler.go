@@ -13,6 +13,8 @@ import (
 type service interface {
 	Create(ctx context.Context, user core.User) error
 	User(ctx context.Context, userQuery core.UserQuery) (core.User, error)
+	UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)
+	ChangePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error
 	InactivateUser(ctx context.Context, userQuery core.UserQuery) error
 	RestoreUser(ctx context.Context, userQuery core.UserQuery) error
 	BanUser(ctx context.Context, userQuery core.UserQuery) error

@@ -15,6 +15,8 @@ import (
 const (
 	registerEndpoint       = "/register"
 	userEndpoint           = "/"
+	userInfoEndpoint       = "/info"
+	changePasswordEndpoint = "/change-password"
 	inactivateUserEndpoint = "/inactivate"
 	restoreUserEndpoint    = "/restore"
 	banUserEndpoint        = "/ban"
@@ -24,6 +26,8 @@ const (
 func (h *HTTPHandler) userRoute(r chi.Router) {
 	r.Post(registerEndpoint, h.register)
 	r.Get(userEndpoint, h.user)
+	r.Get(userInfoEndpoint, h.userInfo)
+	r.Patch(changePasswordEndpoint, h.changePassword)
 	r.Patch(inactivateUserEndpoint, h.inactivateUser)
 	r.Patch(restoreUserEndpoint, h.restoreUser)
 	r.Patch(banUserEndpoint, h.banUser)
@@ -85,6 +89,64 @@ func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
 			h.sendResponse(w, res, status)
 			return
 		}
+	})
+}
+
+func (h *HTTPHandler) userInfo(w http.ResponseWriter, r *http.Request) {
+	h.withBodyClose(r.Body, func(body io.ReadCloser) {
+		var userQuery core.UserQuery
+		err := json.NewDecoder(body).Decode(&userQuery)
+		if err != nil {
+			h.handleDecodeBody(w, err)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
+		defer cancel()
+
+		userInfo, err := h.s.UserInfo(ctx, userQuery)
+		if err != nil {
+			status, res := h.handleError(err)
+
+			h.sendResponse(w, res, status)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(userInfo)
+		if err != nil {
+			status, res := h.handleError(
+				e.NewErrInternal(fmt.Errorf("failed to encode response body: %w", err)),
+			)
+
+			h.sendResponse(w, res, status)
+			return
+		}
+	})
+}
+
+func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
+	h.withBodyClose(r.Body, func(body io.ReadCloser) {
+		var userQueryNewPassword core.UserQueryNewPassword
+
+		err := json.NewDecoder(body).Decode(&userQueryNewPassword)
+		if err != nil {
+			h.handleDecodeBody(w, err)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
+		defer cancel()
+
+		if err := h.s.ChangePassword(ctx, userQueryNewPassword); err != nil {
+			status, res := h.handleError(err)
+
+			h.sendResponse(w, res, status)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("password changed"))
 	})
 }
 

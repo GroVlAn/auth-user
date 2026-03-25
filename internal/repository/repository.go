@@ -65,6 +65,45 @@ func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.U
 	return user, nil
 }
 
+func (r *Repository) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error) {
+	query := fmt.Sprintf(
+		`SELECT username, email, fullname FROM %s
+		WHERE id = $1 OR username = $2 OR email = $3`,
+		userTable,
+	)
+
+	var userInfo core.UserInfo
+	err := r.db.GetContext(
+		ctx,
+		&userInfo,
+		query,
+		userQuery.ID,
+		userQuery.Username,
+		userQuery.Email,
+	)
+	if err != nil {
+		return core.UserInfo{}, handleQueryError(fmt.Errorf(
+			"getting user info: %w", err),
+			"user not found",
+		)
+	}
+
+	return userInfo, nil
+}
+
+func (r *Repository) ChangePassword(ctx context.Context, userID, newPasswordHash string) error {
+	query := fmt.Sprintf(
+		`UPDATE %s SET password_hash=$1 WHERE id=$2`,
+		userTable,
+	)
+
+	if _, err := r.db.ExecContext(ctx, query, newPasswordHash, userID); err != nil {
+		return e.NewErrInternal(fmt.Errorf("changing user password: %w", err))
+	}
+
+	return nil
+}
+
 func (r *Repository) Exist(ctx context.Context, userQuery core.UserQuery) (bool, error) {
 	query := fmt.Sprintf(
 		`SELECT EXISTS(SELECT 1 FROM %s WHERE id=$1 OR username=$2 OR email=$3)`,
