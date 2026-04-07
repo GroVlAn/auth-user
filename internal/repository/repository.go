@@ -91,7 +91,7 @@ func (r *Repository) UserInfo(ctx context.Context, userQuery core.UserQuery) (co
 	return userInfo, nil
 }
 
-func (r *Repository) ChangePassword(ctx context.Context, userID, newPasswordHash string) error {
+func (r *Repository) UpdatePassword(ctx context.Context, userID, newPasswordHash string) error {
 	query := fmt.Sprintf(
 		`UPDATE %s SET password_hash=$1 WHERE id=$2`,
 		userTable,

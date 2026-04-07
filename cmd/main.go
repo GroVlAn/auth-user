@@ -12,6 +12,7 @@ import (
 	"github.com/GroVlAn/auth-user/internal/config"
 	"github.com/GroVlAn/auth-user/internal/database"
 	httphandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
+	"github.com/GroVlAn/auth-user/internal/infrastructure/crypto"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
 	"github.com/GroVlAn/auth-user/internal/service"
@@ -60,7 +61,15 @@ func main() {
 
 	r := repository.New(db)
 
-	s := service.New(r, cfg.Settings.HashCost)
+	hasher := crypto.New(crypto.Deps{
+		Time:    cfg.Hasher.Time,
+		Memory:  cfg.Hasher.Memory,
+		Threads: cfg.Hasher.Threads,
+		KeyLen:  cfg.Hasher.KeyLen,
+		SaltLen: cfg.Hasher.SaltLen,
+	})
+
+	s := service.New(r, hasher)
 
 	h := httphandler.New(s, l, httphandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,

@@ -8,14 +8,13 @@ import (
 	"github.com/GroVlAn/auth-user/internal/core"
 	"github.com/GroVlAn/auth-user/internal/core/e"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type Repo interface {
+type repo interface {
 	Create(ctx context.Context, user core.User) error
 	User(ctx context.Context, userQuery core.UserQuery) (core.User, error)
 	UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)
-	ChangePassword(ctx context.Context, userID, newPasswordHash string) error
+	UpdatePassword(ctx context.Context, userID, newPasswordHash string) error
 	Exist(ctx context.Context, userQuery core.UserQuery) (bool, error)
 	BanUser(ctx context.Context, userID string) error
 	UnbanUser(ctx context.Context, userID string) error
@@ -24,15 +23,21 @@ type Repo interface {
 	DeleteInactiveUser(ctx context.Context) error
 }
 
+type hasher interface {
+	Hash(password string) (string, error)
+	Compare(encodedHash, password string) error
+}
+
 type Service struct {
-	repo     Repo
+	repo     repo
+	hasher   hasher
 	hashCost int
 }
 
-func New(repo Repo, hashCost int) *Service {
+func New(repo repo, hasher hasher) *Service {
 	return &Service{
-		repo:     repo,
-		hashCost: hashCost,
+		repo:   repo,
+		hasher: hasher,
 	}
 }
 
@@ -59,7 +64,7 @@ func (s *Service) Create(ctx context.Context, user core.User) error {
 
 	user.ID = uuid.NewString()
 
-	passwordHash, err := passwordHash(user.Password, s.hashCost)
+	passwordHash, err := s.hasher.Hash(user.Password)
 	if err != nil {
 		return fmt.Errorf("creating password hash: %w", err)
 	}
@@ -101,7 +106,7 @@ func (s *Service) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.
 	return userInfo, nil
 }
 
-func (s *Service) ChangePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error {
+func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error {
 	if err := s.validateUserQuery(userQueryNewPassword.UserQuery); err != nil {
 		return fmt.Errorf("validating user query: %w", err)
 	}
@@ -111,20 +116,24 @@ func (s *Service) ChangePassword(ctx context.Context, userQueryNewPassword core.
 		return fmt.Errorf("getting user: %w", err)
 	}
 
+	if err := s.verifyOldPassword(user.PasswordHash, userQueryNewPassword.OldPassword); err != nil {
+		return fmt.Errorf("verifying password: %w", err)
+	}
+
 	if ok, reason := validatePassword(userQueryNewPassword.NewPassword); !ok {
 		return e.NewErrValidation(reason)
 	}
 
-	if err := s.verifyOldPassword(userQueryNewPassword.OldPassword, user.PasswordHash); err != nil {
+	if err := s.verifyNewPassword(user.PasswordHash, userQueryNewPassword.NewPassword); err != nil {
 		return fmt.Errorf("verifying password: %w", err)
 	}
 
-	newPasswordHash, err := passwordHash(userQueryNewPassword.NewPassword, s.hashCost)
+	newPasswordHash, err := s.hasher.Hash(userQueryNewPassword.NewPassword)
 	if err != nil {
 		return fmt.Errorf("creating password hash: %w", err)
 	}
 
-	if err = s.repo.ChangePassword(ctx, user.ID, newPasswordHash); err != nil {
+	if err = s.repo.UpdatePassword(ctx, user.ID, newPasswordHash); err != nil {
 		return fmt.Errorf("changing user password: %w", err)
 	}
 
@@ -191,17 +200,6 @@ func (s *Service) DeleteInactiveUser(ctx context.Context) error {
 	return nil
 }
 
-func passwordHash(password string, hashCost int) (string, error) {
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), hashCost)
-	if err != nil {
-		return "", e.NewErrInternal(
-			fmt.Errorf("hashing password: %w", err),
-		)
-	}
-
-	return string(passwordHash), nil
-}
-
 func (s *Service) validateUserQuery(userQuery core.UserQuery) *e.ErrValidation {
 	err := e.NewErrValidation("validation user query data error")
 
@@ -217,10 +215,22 @@ func (s *Service) validateUserQuery(userQuery core.UserQuery) *e.ErrValidation {
 
 }
 
-func (s *Service) verifyOldPassword(oldPassword, newPassword string) error {
-	err := bcrypt.CompareHashAndPassword([]byte(newPassword), []byte(oldPassword))
+func (s *Service) verifyNewPassword(oldHash, newPassword string) error {
+	err := s.hasher.Compare(oldHash, newPassword)
 	if err == nil {
 		return e.NewErrValidation("new password must be different from old password")
+	}
+
+	return nil
+}
+
+func (s *Service) verifyOldPassword(passwordHash, oldPassword string) error {
+	err := s.hasher.Compare(passwordHash, oldPassword)
+	if err != nil {
+		return e.NewErrUnauthorized(
+			fmt.Errorf("comparing hash and password: %w", err),
+			"invalid password",
+		)
 	}
 
 	return nil

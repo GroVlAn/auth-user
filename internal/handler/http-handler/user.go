@@ -138,7 +138,7 @@ func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
 		defer cancel()
 
-		if err := h.s.ChangePassword(ctx, userQueryNewPassword); err != nil {
+		if err := h.s.UpdatePassword(ctx, userQueryNewPassword); err != nil {
 			status, res := h.handleError(err)
 
 			h.sendResponse(w, res, status)
