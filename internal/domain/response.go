@@ -1,4 +1,4 @@
-package core
+package domain
 
 type Response struct {
 	Error    *ErrorResponse `json:"error,omitempty"`

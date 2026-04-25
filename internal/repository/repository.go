@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/GroVlAn/auth-user/internal/core"
-	"github.com/GroVlAn/auth-user/internal/core/e"
+	"github.com/GroVlAn/auth-user/internal/domain"
+	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,7 +21,7 @@ func New(db *sqlx.DB) *Repository {
 	return &Repository{db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, user core.User) error {
+func (r *Repository) Create(ctx context.Context, user domain.User) error {
 	query := fmt.Sprintf(
 		`INSERT INTO %s (id, username, email, password_hash, fullname, is_superuser, 
 		created_at) VALUES (:id, :username, :email, :password_hash, :fullname, :is_superuser,
@@ -39,14 +39,14 @@ func (r *Repository) Create(ctx context.Context, user core.User) error {
 	return nil
 }
 
-func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
+func (r *Repository) User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, username, email, password_hash, fullname, created_at, is_superuser, is_banned, is_active FROM %s
 		WHERE id = $1 OR username = $2 OR email = $3`,
 		userTable,
 	)
 
-	var user core.User
+	var user domain.User
 	err := r.db.GetContext(
 		ctx,
 		&user,
@@ -56,7 +56,7 @@ func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.U
 		userQuery.Email,
 	)
 	if err != nil {
-		return core.User{}, handleQueryError(fmt.Errorf(
+		return domain.User{}, handleQueryError(fmt.Errorf(
 			"getting user: %w", err),
 			"user not found",
 		)
@@ -65,14 +65,14 @@ func (r *Repository) User(ctx context.Context, userQuery core.UserQuery) (core.U
 	return user, nil
 }
 
-func (r *Repository) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error) {
+func (r *Repository) UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error) {
 	query := fmt.Sprintf(
 		`SELECT username, email, fullname FROM %s
 		WHERE id = $1 OR username = $2 OR email = $3`,
 		userTable,
 	)
 
-	var userInfo core.UserInfo
+	var userInfo domain.UserInfo
 	err := r.db.GetContext(
 		ctx,
 		&userInfo,
@@ -82,7 +82,7 @@ func (r *Repository) UserInfo(ctx context.Context, userQuery core.UserQuery) (co
 		userQuery.Email,
 	)
 	if err != nil {
-		return core.UserInfo{}, handleQueryError(fmt.Errorf(
+		return domain.UserInfo{}, handleQueryError(fmt.Errorf(
 			"getting user info: %w", err),
 			"user not found",
 		)
@@ -104,7 +104,7 @@ func (r *Repository) UpdatePassword(ctx context.Context, userID, newPasswordHash
 	return nil
 }
 
-func (r *Repository) Exist(ctx context.Context, userQuery core.UserQuery) (bool, error) {
+func (r *Repository) Exist(ctx context.Context, userQuery domain.UserQuery) (bool, error) {
 	query := fmt.Sprintf(
 		`SELECT EXISTS(SELECT 1 FROM %s WHERE id=$1 OR username=$2 OR email=$3)`,
 		userTable,

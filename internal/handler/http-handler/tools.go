@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GroVlAn/auth-user/internal/core"
-	"github.com/GroVlAn/auth-user/internal/core/e"
+	"github.com/GroVlAn/auth-user/internal/domain"
+	"github.com/GroVlAn/auth-user/internal/domain/e"
 )
 
 func (h *HTTPHandler) withBodyClose(body io.ReadCloser, fn func(io.ReadCloser)) {
@@ -43,7 +43,7 @@ func (h *HTTPHandler) handleDecodeBody(w http.ResponseWriter, err error) {
 	h.sendResponse(w, res, status)
 }
 
-func (h *HTTPHandler) sendResponse(w http.ResponseWriter, res core.Response, status int) {
+func (h *HTTPHandler) sendResponse(w http.ResponseWriter, res domain.Response, status int) {
 	b, err := json.Marshal(res)
 	if err != nil {
 		h.l.Error().Err(err).Msg("failed marshal response")
@@ -57,7 +57,7 @@ func (h *HTTPHandler) sendResponse(w http.ResponseWriter, res core.Response, sta
 	}
 }
 
-func (h *HTTPHandler) handleError(err error) (int, core.Response) {
+func (h *HTTPHandler) handleError(err error) (int, domain.Response) {
 	var errValidation *e.ErrValidation
 	var errWrapper *e.ErrWrapper
 
@@ -70,21 +70,21 @@ func (h *HTTPHandler) handleError(err error) (int, core.Response) {
 	}
 
 	h.l.Error().Err(err).Msg("unexpected error occurred")
-	return http.StatusInternalServerError, core.Response{
-		Error: &core.ErrorResponse{
+	return http.StatusInternalServerError, domain.Response{
+		Error: &domain.ErrorResponse{
 			Code: http.StatusInternalServerError,
 			Text: "internal server error",
 		},
 	}
 }
 
-func (h *HTTPHandler) handleValidationError(err error, errValidation *e.ErrValidation) (int, core.Response) {
+func (h *HTTPHandler) handleValidationError(err error, errValidation *e.ErrValidation) (int, domain.Response) {
 	h.l.Error().Err(err).Msg("validation error occurred")
 
 	data := errValidation.Data()
 
-	return http.StatusBadRequest, core.Response{
-		Error: &core.ErrorResponse{
+	return http.StatusBadRequest, domain.Response{
+		Error: &domain.ErrorResponse{
 			Code: http.StatusBadRequest,
 			Text: errValidation.Error(),
 		},
@@ -92,13 +92,13 @@ func (h *HTTPHandler) handleValidationError(err error, errValidation *e.ErrValid
 	}
 }
 
-func (h *HTTPHandler) handleErrorWrapper(errWrapper *e.ErrWrapper) (int, core.Response) {
+func (h *HTTPHandler) handleErrorWrapper(errWrapper *e.ErrWrapper) (int, domain.Response) {
 	switch errWrapper.ErrorType() {
 	case e.ErrorTypeNotFound:
 		h.l.Error().Err(errWrapper.Unwrap()).Msg("error not found occurred")
 
-		return http.StatusNotFound, core.Response{
-			Error: &core.ErrorResponse{
+		return http.StatusNotFound, domain.Response{
+			Error: &domain.ErrorResponse{
 				Code: http.StatusNotFound,
 				Text: errWrapper.Error(),
 			},
@@ -106,8 +106,8 @@ func (h *HTTPHandler) handleErrorWrapper(errWrapper *e.ErrWrapper) (int, core.Re
 	case e.ErrorTypeConflict:
 		h.l.Error().Err(errWrapper.Unwrap()).Msg("error conflict occurred")
 
-		return http.StatusConflict, core.Response{
-			Error: &core.ErrorResponse{
+		return http.StatusConflict, domain.Response{
+			Error: &domain.ErrorResponse{
 				Code: http.StatusConflict,
 				Text: errWrapper.Error(),
 			},
@@ -115,8 +115,8 @@ func (h *HTTPHandler) handleErrorWrapper(errWrapper *e.ErrWrapper) (int, core.Re
 	case e.ErrorTypeInternal:
 		h.l.Error().Err(errWrapper.Unwrap()).Msg("error internal occurred")
 
-		return http.StatusInternalServerError, core.Response{
-			Error: &core.ErrorResponse{
+		return http.StatusInternalServerError, domain.Response{
+			Error: &domain.ErrorResponse{
 				Code: http.StatusInternalServerError,
 				Text: errWrapper.Error(),
 			},
@@ -124,8 +124,8 @@ func (h *HTTPHandler) handleErrorWrapper(errWrapper *e.ErrWrapper) (int, core.Re
 	default:
 		h.l.Error().Err(errWrapper.Unwrap()).Msg("error internal(not wrapped) occurred")
 
-		return http.StatusInternalServerError, core.Response{
-			Error: &core.ErrorResponse{
+		return http.StatusInternalServerError, domain.Response{
+			Error: &domain.ErrorResponse{
 				Code: http.StatusInternalServerError,
 				Text: "internal server error",
 			},

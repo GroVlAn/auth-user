@@ -7,7 +7,7 @@ package service
 import (
 	"context"
 
-	"github.com/GroVlAn/auth-user/internal/core"
+	"github.com/GroVlAn/auth-user/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -96,7 +96,7 @@ func (_c *mockrepo_BanUser_Call) RunAndReturn(run func(ctx context.Context, user
 }
 
 // Create provides a mock function for the type mockrepo
-func (_mock *mockrepo) Create(ctx context.Context, user core.User) error {
+func (_mock *mockrepo) Create(ctx context.Context, user domain.User) error {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
@@ -104,7 +104,7 @@ func (_mock *mockrepo) Create(ctx context.Context, user core.User) error {
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.User) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.User) error); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
 		r0 = ret.Error(0)
@@ -119,20 +119,20 @@ type mockrepo_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user core.User
+//   - user domain.User
 func (_e *mockrepo_Expecter) Create(ctx interface{}, user interface{}) *mockrepo_Create_Call {
 	return &mockrepo_Create_Call{Call: _e.mock.On("Create", ctx, user)}
 }
 
-func (_c *mockrepo_Create_Call) Run(run func(ctx context.Context, user core.User)) *mockrepo_Create_Call {
+func (_c *mockrepo_Create_Call) Run(run func(ctx context.Context, user domain.User)) *mockrepo_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 core.User
+		var arg1 domain.User
 		if args[1] != nil {
-			arg1 = args[1].(core.User)
+			arg1 = args[1].(domain.User)
 		}
 		run(
 			arg0,
@@ -147,7 +147,7 @@ func (_c *mockrepo_Create_Call) Return(err error) *mockrepo_Create_Call {
 	return _c
 }
 
-func (_c *mockrepo_Create_Call) RunAndReturn(run func(ctx context.Context, user core.User) error) *mockrepo_Create_Call {
+func (_c *mockrepo_Create_Call) RunAndReturn(run func(ctx context.Context, user domain.User) error) *mockrepo_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -204,7 +204,7 @@ func (_c *mockrepo_DeleteInactiveUser_Call) RunAndReturn(run func(ctx context.Co
 }
 
 // Exist provides a mock function for the type mockrepo
-func (_mock *mockrepo) Exist(ctx context.Context, userQuery core.UserQuery) (bool, error) {
+func (_mock *mockrepo) Exist(ctx context.Context, userQuery domain.UserQuery) (bool, error) {
 	ret := _mock.Called(ctx, userQuery)
 
 	if len(ret) == 0 {
@@ -213,15 +213,15 @@ func (_mock *mockrepo) Exist(ctx context.Context, userQuery core.UserQuery) (boo
 
 	var r0 bool
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) (bool, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) (bool, error)); ok {
 		return returnFunc(ctx, userQuery)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) bool); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) bool); ok {
 		r0 = returnFunc(ctx, userQuery)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, core.UserQuery) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserQuery) error); ok {
 		r1 = returnFunc(ctx, userQuery)
 	} else {
 		r1 = ret.Error(1)
@@ -236,20 +236,20 @@ type mockrepo_Exist_Call struct {
 
 // Exist is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userQuery core.UserQuery
+//   - userQuery domain.UserQuery
 func (_e *mockrepo_Expecter) Exist(ctx interface{}, userQuery interface{}) *mockrepo_Exist_Call {
 	return &mockrepo_Exist_Call{Call: _e.mock.On("Exist", ctx, userQuery)}
 }
 
-func (_c *mockrepo_Exist_Call) Run(run func(ctx context.Context, userQuery core.UserQuery)) *mockrepo_Exist_Call {
+func (_c *mockrepo_Exist_Call) Run(run func(ctx context.Context, userQuery domain.UserQuery)) *mockrepo_Exist_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 core.UserQuery
+		var arg1 domain.UserQuery
 		if args[1] != nil {
-			arg1 = args[1].(core.UserQuery)
+			arg1 = args[1].(domain.UserQuery)
 		}
 		run(
 			arg0,
@@ -264,7 +264,7 @@ func (_c *mockrepo_Exist_Call) Return(b bool, err error) *mockrepo_Exist_Call {
 	return _c
 }
 
-func (_c *mockrepo_Exist_Call) RunAndReturn(run func(ctx context.Context, userQuery core.UserQuery) (bool, error)) *mockrepo_Exist_Call {
+func (_c *mockrepo_Exist_Call) RunAndReturn(run func(ctx context.Context, userQuery domain.UserQuery) (bool, error)) *mockrepo_Exist_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -504,24 +504,24 @@ func (_c *mockrepo_UpdatePassword_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // User provides a mock function for the type mockrepo
-func (_mock *mockrepo) User(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
+func (_mock *mockrepo) User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error) {
 	ret := _mock.Called(ctx, userQuery)
 
 	if len(ret) == 0 {
 		panic("no return value specified for User")
 	}
 
-	var r0 core.User
+	var r0 domain.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) (core.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) (domain.User, error)); ok {
 		return returnFunc(ctx, userQuery)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) core.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) domain.User); ok {
 		r0 = returnFunc(ctx, userQuery)
 	} else {
-		r0 = ret.Get(0).(core.User)
+		r0 = ret.Get(0).(domain.User)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, core.UserQuery) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserQuery) error); ok {
 		r1 = returnFunc(ctx, userQuery)
 	} else {
 		r1 = ret.Error(1)
@@ -536,20 +536,20 @@ type mockrepo_User_Call struct {
 
 // User is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userQuery core.UserQuery
+//   - userQuery domain.UserQuery
 func (_e *mockrepo_Expecter) User(ctx interface{}, userQuery interface{}) *mockrepo_User_Call {
 	return &mockrepo_User_Call{Call: _e.mock.On("User", ctx, userQuery)}
 }
 
-func (_c *mockrepo_User_Call) Run(run func(ctx context.Context, userQuery core.UserQuery)) *mockrepo_User_Call {
+func (_c *mockrepo_User_Call) Run(run func(ctx context.Context, userQuery domain.UserQuery)) *mockrepo_User_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 core.UserQuery
+		var arg1 domain.UserQuery
 		if args[1] != nil {
-			arg1 = args[1].(core.UserQuery)
+			arg1 = args[1].(domain.UserQuery)
 		}
 		run(
 			arg0,
@@ -559,35 +559,35 @@ func (_c *mockrepo_User_Call) Run(run func(ctx context.Context, userQuery core.U
 	return _c
 }
 
-func (_c *mockrepo_User_Call) Return(user core.User, err error) *mockrepo_User_Call {
+func (_c *mockrepo_User_Call) Return(user domain.User, err error) *mockrepo_User_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *mockrepo_User_Call) RunAndReturn(run func(ctx context.Context, userQuery core.UserQuery) (core.User, error)) *mockrepo_User_Call {
+func (_c *mockrepo_User_Call) RunAndReturn(run func(ctx context.Context, userQuery domain.UserQuery) (domain.User, error)) *mockrepo_User_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UserInfo provides a mock function for the type mockrepo
-func (_mock *mockrepo) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error) {
+func (_mock *mockrepo) UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error) {
 	ret := _mock.Called(ctx, userQuery)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UserInfo")
 	}
 
-	var r0 core.UserInfo
+	var r0 domain.UserInfo
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) (core.UserInfo, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) (domain.UserInfo, error)); ok {
 		return returnFunc(ctx, userQuery)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, core.UserQuery) core.UserInfo); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserQuery) domain.UserInfo); ok {
 		r0 = returnFunc(ctx, userQuery)
 	} else {
-		r0 = ret.Get(0).(core.UserInfo)
+		r0 = ret.Get(0).(domain.UserInfo)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, core.UserQuery) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserQuery) error); ok {
 		r1 = returnFunc(ctx, userQuery)
 	} else {
 		r1 = ret.Error(1)
@@ -602,20 +602,20 @@ type mockrepo_UserInfo_Call struct {
 
 // UserInfo is a helper method to define mock.On call
 //   - ctx context.Context
-//   - userQuery core.UserQuery
+//   - userQuery domain.UserQuery
 func (_e *mockrepo_Expecter) UserInfo(ctx interface{}, userQuery interface{}) *mockrepo_UserInfo_Call {
 	return &mockrepo_UserInfo_Call{Call: _e.mock.On("UserInfo", ctx, userQuery)}
 }
 
-func (_c *mockrepo_UserInfo_Call) Run(run func(ctx context.Context, userQuery core.UserQuery)) *mockrepo_UserInfo_Call {
+func (_c *mockrepo_UserInfo_Call) Run(run func(ctx context.Context, userQuery domain.UserQuery)) *mockrepo_UserInfo_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 core.UserQuery
+		var arg1 domain.UserQuery
 		if args[1] != nil {
-			arg1 = args[1].(core.UserQuery)
+			arg1 = args[1].(domain.UserQuery)
 		}
 		run(
 			arg0,
@@ -625,12 +625,12 @@ func (_c *mockrepo_UserInfo_Call) Run(run func(ctx context.Context, userQuery co
 	return _c
 }
 
-func (_c *mockrepo_UserInfo_Call) Return(userInfo core.UserInfo, err error) *mockrepo_UserInfo_Call {
+func (_c *mockrepo_UserInfo_Call) Return(userInfo domain.UserInfo, err error) *mockrepo_UserInfo_Call {
 	_c.Call.Return(userInfo, err)
 	return _c
 }
 
-func (_c *mockrepo_UserInfo_Call) RunAndReturn(run func(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)) *mockrepo_UserInfo_Call {
+func (_c *mockrepo_UserInfo_Call) RunAndReturn(run func(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error)) *mockrepo_UserInfo_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/GroVlAn/auth-user/internal/config"
-	"github.com/GroVlAn/auth-user/internal/database"
 	httphandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/crypto"
+	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
 	"github.com/GroVlAn/auth-user/internal/service"

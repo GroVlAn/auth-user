@@ -5,20 +5,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/GroVlAn/auth-user/internal/core"
+	"github.com/GroVlAn/auth-user/internal/domain"
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 )
 
 type service interface {
-	Create(ctx context.Context, user core.User) error
-	User(ctx context.Context, userQuery core.UserQuery) (core.User, error)
-	UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)
-	UpdatePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error
-	InactivateUser(ctx context.Context, userQuery core.UserQuery) error
-	RestoreUser(ctx context.Context, userQuery core.UserQuery) error
-	BanUser(ctx context.Context, userQuery core.UserQuery) error
-	UnbanUser(ctx context.Context, userQuery core.UserQuery) error
+	Create(ctx context.Context, user domain.User) error
+	User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error)
+	UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error)
+	UpdatePassword(ctx context.Context, userQueryNewPassword domain.UserQueryNewPassword) error
+	InactivateUser(ctx context.Context, userQuery domain.UserQuery) error
+	RestoreUser(ctx context.Context, userQuery domain.UserQuery) error
+	BanUser(ctx context.Context, userQuery domain.UserQuery) error
+	UnbanUser(ctx context.Context, userQuery domain.UserQuery) error
 }
 
 type Deps struct {

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/GroVlAn/auth-user/internal/core/e"
+	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"golang.org/x/crypto/argon2"
 )
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GroVlAn/auth-user/internal/core"
+	"github.com/GroVlAn/auth-user/internal/domain"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -15,7 +15,7 @@ func TestService_Create(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	validUser := core.User{
+	validUser := domain.User{
 		Username: "john_doe",
 		Email:    "example@example.com",
 		Password: "12345WWw##3",
@@ -24,13 +24,13 @@ func TestService_Create(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		user      core.User
+		user      domain.User
 		setupMock func(m *mockrepo, h *mockhasher)
 		check     func(t *testing.T, err error, m *mockrepo, h *mockhasher)
 	}{
 		{
 			name: "validation empty user error",
-			user: core.User{},
+			user: domain.User{},
 			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
 				require.Error(t, err)
 				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
@@ -39,7 +39,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation empty username error",
-			user: core.User{
+			user: domain.User{
 				Email:    "example@example.com",
 				Password: "12345WWw##3",
 				Fullname: "John Doe",
@@ -52,7 +52,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation empty email error",
-			user: core.User{
+			user: domain.User{
 				Email:    "example@example.com",
 				Password: "12345WWw##3",
 				Fullname: "John Doe",
@@ -65,7 +65,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation empty password error",
-			user: core.User{
+			user: domain.User{
 				Username: "john_doe",
 				Email:    "example@example.com",
 				Fullname: "John Doe",
@@ -78,7 +78,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation empty fullname error",
-			user: core.User{
+			user: domain.User{
 				Username: "john_doe",
 				Email:    "example@example.com",
 				Password: "12345WWw##3",
@@ -91,7 +91,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation bad email error",
-			user: core.User{
+			user: domain.User{
 				Username: "john_doe",
 				Email:    "example",
 				Password: "12345WWw##3",
@@ -105,7 +105,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation bad password error",
-			user: core.User{
+			user: domain.User{
 				Username: "john_doe",
 				Email:    "examplee@example.com",
 				Password: "12345",
@@ -119,7 +119,7 @@ func TestService_Create(t *testing.T) {
 		},
 		{
 			name: "validation bad fullname error",
-			user: core.User{
+			user: domain.User{
 				Username: "john_doe",
 				Email:    "examplee@example.com",
 				Password: "12345WWw##3",
@@ -183,7 +183,7 @@ func TestService_Create(t *testing.T) {
 				h.On("Hash", validUser.Password).
 					Return("hashed_password", nil).Once()
 
-				m.On("Create", mock.Anything, mock.MatchedBy(func(u core.User) bool {
+				m.On("Create", mock.Anything, mock.MatchedBy(func(u domain.User) bool {
 					return u.ID != "" &&
 						u.PasswordHash != "" &&
 						u.PasswordHash != u.Password &&
@@ -220,11 +220,11 @@ func TestService_User(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	validQuery := core.UserQuery{
+	validQuery := domain.UserQuery{
 		Username: "john_doe",
 	}
 
-	expectedUser := core.User{
+	expectedUser := domain.User{
 		ID:       "123",
 		Username: "john_doe",
 		Email:    "example@example.com",
@@ -233,16 +233,16 @@ func TestService_User(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		query     core.UserQuery
+		query     domain.UserQuery
 		setupMock func(m *mockrepo)
-		check     func(t *testing.T, user core.User, err error, m *mockrepo)
+		check     func(t *testing.T, user domain.User, err error, m *mockrepo)
 	}{
 		{
 			name:  "validation error - empty query",
-			query: core.UserQuery{},
-			check: func(t *testing.T, user core.User, err error, m *mockrepo) {
+			query: domain.UserQuery{},
+			check: func(t *testing.T, user domain.User, err error, m *mockrepo) {
 				require.Error(t, err)
-				require.Equal(t, core.User{}, user)
+				require.Equal(t, domain.User{}, user)
 				m.AssertNotCalled(t, mock.Anything, mock.Anything)
 			},
 		},
@@ -251,11 +251,11 @@ func TestService_User(t *testing.T) {
 			query: validQuery,
 			setupMock: func(m *mockrepo) {
 				m.On("User", mock.Anything, validQuery).
-					Return(core.User{}, fmt.Errorf("db error")).Once()
+					Return(domain.User{}, fmt.Errorf("db error")).Once()
 			},
-			check: func(t *testing.T, user core.User, err error, m *mockrepo) {
+			check: func(t *testing.T, user domain.User, err error, m *mockrepo) {
 				require.Error(t, err)
-				require.Equal(t, core.User{}, user)
+				require.Equal(t, domain.User{}, user)
 			},
 		},
 		{
@@ -265,7 +265,7 @@ func TestService_User(t *testing.T) {
 				m.On("User", mock.Anything, validQuery).
 					Return(expectedUser, nil).Once()
 			},
-			check: func(t *testing.T, user core.User, err error, m *mockrepo) {
+			check: func(t *testing.T, user domain.User, err error, m *mockrepo) {
 				require.NoError(t, err)
 				require.Equal(t, expectedUser, user)
 			},
@@ -295,11 +295,11 @@ func TestService_UserInfo(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	validQuery := core.UserQuery{
+	validQuery := domain.UserQuery{
 		Username: "john_doe",
 	}
 
-	expectedUser := core.UserInfo{
+	expectedUser := domain.UserInfo{
 		Username: "john_doe",
 		Email:    "example@example.com",
 		Fullname: "John Doe",
@@ -307,16 +307,16 @@ func TestService_UserInfo(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		query     core.UserQuery
+		query     domain.UserQuery
 		setupMock func(m *mockrepo)
-		check     func(t *testing.T, user core.UserInfo, err error, m *mockrepo)
+		check     func(t *testing.T, user domain.UserInfo, err error, m *mockrepo)
 	}{
 		{
 			name:  "validation error - empty query",
-			query: core.UserQuery{},
-			check: func(t *testing.T, userInfo core.UserInfo, err error, m *mockrepo) {
+			query: domain.UserQuery{},
+			check: func(t *testing.T, userInfo domain.UserInfo, err error, m *mockrepo) {
 				require.Error(t, err)
-				require.Equal(t, core.UserInfo{}, userInfo)
+				require.Equal(t, domain.UserInfo{}, userInfo)
 				m.AssertNotCalled(t, mock.Anything, mock.Anything)
 			},
 		},
@@ -325,11 +325,11 @@ func TestService_UserInfo(t *testing.T) {
 			query: validQuery,
 			setupMock: func(m *mockrepo) {
 				m.On("UserInfo", mock.Anything, validQuery).
-					Return(core.UserInfo{}, fmt.Errorf("db error")).Once()
+					Return(domain.UserInfo{}, fmt.Errorf("db error")).Once()
 			},
-			check: func(t *testing.T, user core.UserInfo, err error, m *mockrepo) {
+			check: func(t *testing.T, user domain.UserInfo, err error, m *mockrepo) {
 				require.Error(t, err)
-				require.Equal(t, core.UserInfo{}, user)
+				require.Equal(t, domain.UserInfo{}, user)
 			},
 		},
 		{
@@ -339,7 +339,7 @@ func TestService_UserInfo(t *testing.T) {
 				m.On("UserInfo", mock.Anything, validQuery).
 					Return(expectedUser, nil).Once()
 			},
-			check: func(t *testing.T, user core.UserInfo, err error, m *mockrepo) {
+			check: func(t *testing.T, user domain.UserInfo, err error, m *mockrepo) {
 				require.NoError(t, err)
 				require.Equal(t, expectedUser, user)
 			},
@@ -369,15 +369,15 @@ func TestService_UpdatePassword(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	validQueryNewPassword := core.UserQueryNewPassword{
-		UserQuery: core.UserQuery{
+	validQueryNewPassword := domain.UserQueryNewPassword{
+		UserQuery: domain.UserQuery{
 			Username: "john_doe",
 		},
 		NewPassword: "NewPassword123!",
 		OldPassword: "OldPassword123!",
 	}
 
-	existingUser := core.User{
+	existingUser := domain.User{
 		ID:           "123",
 		Username:     "john_doe",
 		Email:        "example@example.com",
@@ -387,13 +387,13 @@ func TestService_UpdatePassword(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		query     core.UserQueryNewPassword
+		query     domain.UserQueryNewPassword
 		setupMock func(m *mockrepo, h *mockhasher)
 		check     func(t *testing.T, err error, m *mockrepo, h *mockhasher)
 	}{
 		{
 			name:  "validation error - empty query",
-			query: core.UserQueryNewPassword{},
+			query: domain.UserQueryNewPassword{},
 			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
 				require.Error(t, err)
 			},
@@ -403,7 +403,7 @@ func TestService_UpdatePassword(t *testing.T) {
 			query: validQueryNewPassword,
 			setupMock: func(m *mockrepo, h *mockhasher) {
 				m.On("User", mock.Anything, validQueryNewPassword.UserQuery).
-					Return(core.User{}, fmt.Errorf("db error")).Once()
+					Return(domain.User{}, fmt.Errorf("db error")).Once()
 			},
 			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
 				require.Error(t, err)
@@ -425,8 +425,8 @@ func TestService_UpdatePassword(t *testing.T) {
 		},
 		{
 			name: "validate new password fails",
-			query: core.UserQueryNewPassword{
-				UserQuery: core.UserQuery{
+			query: domain.UserQueryNewPassword{
+				UserQuery: domain.UserQuery{
 					Username: "john_doe",
 				},
 				NewPassword: "short",
@@ -445,8 +445,8 @@ func TestService_UpdatePassword(t *testing.T) {
 		},
 		{
 			name: "verify new password fails - same as old",
-			query: core.UserQueryNewPassword{
-				UserQuery: core.UserQuery{
+			query: domain.UserQueryNewPassword{
+				UserQuery: domain.UserQuery{
 					Username: "john_doe",
 				},
 				NewPassword: "OldPassword123!",

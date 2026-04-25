@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/GroVlAn/auth-user/internal/core"
-	"github.com/GroVlAn/auth-user/internal/core/e"
+	"github.com/GroVlAn/auth-user/internal/domain"
+	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/google/uuid"
 )
 
 type repo interface {
-	Create(ctx context.Context, user core.User) error
-	User(ctx context.Context, userQuery core.UserQuery) (core.User, error)
-	UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error)
+	Create(ctx context.Context, user domain.User) error
+	User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error)
+	UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error)
 	UpdatePassword(ctx context.Context, userID, newPasswordHash string) error
-	Exist(ctx context.Context, userQuery core.UserQuery) (bool, error)
+	Exist(ctx context.Context, userQuery domain.UserQuery) (bool, error)
 	BanUser(ctx context.Context, userID string) error
 	UnbanUser(ctx context.Context, userID string) error
 	InactivateUser(ctx context.Context, userID string) error
@@ -41,12 +41,12 @@ func New(repo repo, hasher hasher) *Service {
 	}
 }
 
-func (s *Service) Create(ctx context.Context, user core.User) error {
+func (s *Service) Create(ctx context.Context, user domain.User) error {
 	if err := validateUser(user); err != nil {
 		return err
 	}
 
-	exist, err := s.repo.Exist(ctx, core.UserQuery{
+	exist, err := s.repo.Exist(ctx, domain.UserQuery{
 		Username: user.Username,
 		Email:    user.Email,
 	})
@@ -80,33 +80,33 @@ func (s *Service) Create(ctx context.Context, user core.User) error {
 	return nil
 }
 
-func (s *Service) User(ctx context.Context, userQuery core.UserQuery) (core.User, error) {
+func (s *Service) User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error) {
 	if err := s.validateUserQuery(userQuery); err != nil {
-		return core.User{}, fmt.Errorf("validating user query: %w", err)
+		return domain.User{}, fmt.Errorf("validating user query: %w", err)
 	}
 
 	user, err := s.repo.User(ctx, userQuery)
 	if err != nil {
-		return core.User{}, fmt.Errorf("getting user: %w", err)
+		return domain.User{}, fmt.Errorf("getting user: %w", err)
 	}
 
 	return user, nil
 }
 
-func (s *Service) UserInfo(ctx context.Context, userQuery core.UserQuery) (core.UserInfo, error) {
+func (s *Service) UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error) {
 	if err := s.validateUserQuery(userQuery); err != nil {
-		return core.UserInfo{}, fmt.Errorf("validating user query: %w", err)
+		return domain.UserInfo{}, fmt.Errorf("validating user query: %w", err)
 	}
 
 	userInfo, err := s.repo.UserInfo(ctx, userQuery)
 	if err != nil {
-		return core.UserInfo{}, fmt.Errorf("getting user info: %w", err)
+		return domain.UserInfo{}, fmt.Errorf("getting user info: %w", err)
 	}
 
 	return userInfo, nil
 }
 
-func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword core.UserQueryNewPassword) error {
+func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword domain.UserQueryNewPassword) error {
 	if err := s.validateUserQuery(userQueryNewPassword.UserQuery); err != nil {
 		return fmt.Errorf("validating user query: %w", err)
 	}
@@ -140,7 +140,7 @@ func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword core.
 	return nil
 }
 
-func (s *Service) InactivateUser(ctx context.Context, userQuery core.UserQuery) error {
+func (s *Service) InactivateUser(ctx context.Context, userQuery domain.UserQuery) error {
 	user, err := s.User(ctx, userQuery)
 	if err != nil {
 		return fmt.Errorf("getting user: %w", err)
@@ -153,7 +153,7 @@ func (s *Service) InactivateUser(ctx context.Context, userQuery core.UserQuery) 
 	return nil
 }
 
-func (s *Service) RestoreUser(ctx context.Context, userQuery core.UserQuery) error {
+func (s *Service) RestoreUser(ctx context.Context, userQuery domain.UserQuery) error {
 	user, err := s.User(ctx, userQuery)
 	if err != nil {
 		return fmt.Errorf("getting user: %w", err)
@@ -166,7 +166,7 @@ func (s *Service) RestoreUser(ctx context.Context, userQuery core.UserQuery) err
 	return nil
 }
 
-func (s *Service) BanUser(ctx context.Context, userQuery core.UserQuery) error {
+func (s *Service) BanUser(ctx context.Context, userQuery domain.UserQuery) error {
 	user, err := s.User(ctx, userQuery)
 	if err != nil {
 		return fmt.Errorf("getting user: %w", err)
@@ -179,7 +179,7 @@ func (s *Service) BanUser(ctx context.Context, userQuery core.UserQuery) error {
 	return nil
 }
 
-func (s *Service) UnbanUser(ctx context.Context, userQuery core.UserQuery) error {
+func (s *Service) UnbanUser(ctx context.Context, userQuery domain.UserQuery) error {
 	user, err := s.User(ctx, userQuery)
 	if err != nil {
 		return fmt.Errorf("getting user: %w", err)
@@ -200,7 +200,7 @@ func (s *Service) DeleteInactiveUser(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) validateUserQuery(userQuery core.UserQuery) *e.ErrValidation {
+func (s *Service) validateUserQuery(userQuery domain.UserQuery) *e.ErrValidation {
 	err := e.NewErrValidation("validation user query data error")
 
 	if userQuery.ID == "" && userQuery.Username == "" && userQuery.Email == "" {

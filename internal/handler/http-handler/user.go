@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/GroVlAn/auth-user/internal/core"
-	"github.com/GroVlAn/auth-user/internal/core/e"
+	"github.com/GroVlAn/auth-user/internal/domain"
+	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/go-chi/chi"
 )
 
@@ -36,7 +36,7 @@ func (h *HTTPHandler) userRoute(r chi.Router) {
 
 func (h *HTTPHandler) register(w http.ResponseWriter, r *http.Request) {
 	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var user core.User
+		var user domain.User
 		err := json.NewDecoder(body).Decode(&user)
 		if err != nil {
 			h.handleDecodeBody(w, err)
@@ -61,7 +61,7 @@ func (h *HTTPHandler) register(w http.ResponseWriter, r *http.Request) {
 
 func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
 	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var userQuery core.UserQuery
+		var userQuery domain.UserQuery
 		err := json.NewDecoder(body).Decode(&userQuery)
 		if err != nil {
 			h.handleDecodeBody(w, err)
@@ -94,7 +94,7 @@ func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
 
 func (h *HTTPHandler) userInfo(w http.ResponseWriter, r *http.Request) {
 	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var userQuery core.UserQuery
+		var userQuery domain.UserQuery
 		err := json.NewDecoder(body).Decode(&userQuery)
 		if err != nil {
 			h.handleDecodeBody(w, err)
@@ -127,7 +127,7 @@ func (h *HTTPHandler) userInfo(w http.ResponseWriter, r *http.Request) {
 
 func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
 	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var userQueryNewPassword core.UserQueryNewPassword
+		var userQueryNewPassword domain.UserQueryNewPassword
 
 		err := json.NewDecoder(body).Decode(&userQueryNewPassword)
 		if err != nil {
@@ -179,9 +179,9 @@ func (h *HTTPHandler) changeUserStatus(
 	r *http.Request,
 	body io.ReadCloser,
 	successMessage string,
-	fn func(context.Context, core.UserQuery) error,
+	fn func(context.Context, domain.UserQuery) error,
 ) {
-	var userQuery core.UserQuery
+	var userQuery domain.UserQuery
 	if err := json.NewDecoder(body).Decode(&userQuery); err != nil {
 		h.handleDecodeBody(w, err)
 		return
