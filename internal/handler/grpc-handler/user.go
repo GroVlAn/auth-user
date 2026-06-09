@@ -44,15 +44,15 @@ func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.Use
 	}
 
 	return &api.User{
-		ID:          user.ID,
-		Username:    user.Username,
-		Email:       user.Email,
-		Password:    user.Password,
-		Fullname:    user.Fullname,
-		IsSuperuser: user.IsSuperuser,
-		IsActive:    user.IsActive,
-		IsBanned:    user.IsBanned,
-		CreatedAt:   timestamppb.New(user.CreatedAt),
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
+		Fullname:     user.Fullname,
+		IsSuperuser:  user.IsSuperuser,
+		IsActive:     user.IsActive,
+		IsBanned:     user.IsBanned,
+		CreatedAt:    timestamppb.New(user.CreatedAt),
 	}, nil
 }
 
