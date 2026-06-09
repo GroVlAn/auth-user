@@ -1,12 +1,11 @@
-package http_handler
+package grpc_handler
 
 import (
 	"context"
-	"net/http"
 	"time"
 
+	"github.com/GroVlAn/auth-api/user"
 	"github.com/GroVlAn/auth-user/internal/domain"
-	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 )
 
@@ -21,39 +20,17 @@ type service interface {
 	UnbanUser(ctx context.Context, userQuery domain.UserQuery) error
 }
 
-type Deps struct {
-	BasePath       string
+type GRPCHandler struct {
+	user.UnimplementedUserServiceServer
+	l              zerolog.Logger
+	s              service
 	DefaultTimeout time.Duration
 }
 
-type HTTPHandler struct {
-	s service
-	l zerolog.Logger
-	Deps
-}
-
-func New(s service, l zerolog.Logger, deps Deps) *HTTPHandler {
-	return &HTTPHandler{
-		s:    s,
-		l:    l,
-		Deps: deps,
+func New(l zerolog.Logger, s service, defTimeout time.Duration) *GRPCHandler {
+	return &GRPCHandler{
+		l:              l,
+		s:              s,
+		DefaultTimeout: defTimeout,
 	}
-}
-
-func (h *HTTPHandler) Handler() http.Handler {
-	r := chi.NewRouter()
-
-	h.useMiddleware(r)
-
-	r.Route("/", func(r chi.Router) {
-		r.Get("/home", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Welcome to the Home Page!"))
-		})
-	})
-
-	r.Route(h.BasePath, func(r chi.Router) {
-		h.userRoute(r)
-	})
-
-	return r
 }

@@ -1,4 +1,4 @@
-package httphandler
+package http_handler
 
 import (
 	"context"
@@ -46,8 +46,7 @@ func (h *HTTPHandler) register(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
 		defer cancel()
 
-		err = h.s.Create(ctx, user)
-		if err != nil {
+		if err = h.s.Create(ctx, user); err != nil {
 			status, res := h.handleError(err)
 
 			h.sendResponse(w, res, status)

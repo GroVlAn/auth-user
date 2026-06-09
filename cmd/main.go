@@ -10,10 +10,12 @@ import (
 	"time"
 
 	"github.com/GroVlAn/auth-user/internal/config"
+	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
 	httphandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/crypto"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
 	"github.com/GroVlAn/auth-user/internal/repository"
+	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
 	"github.com/GroVlAn/auth-user/internal/service"
 	_ "github.com/lib/pq"
@@ -76,6 +78,12 @@ func main() {
 		DefaultTimeout: cfg.Settings.DefaultTimeout,
 	})
 
+	gh := grpcHandler.New(
+		l,
+		s,
+		cfg.Settings.DefaultTimeout,
+	)
+
 	hServer := httpserver.New(
 		h.Handler(),
 		httpserver.Settings{
@@ -86,9 +94,21 @@ func main() {
 		},
 	)
 
+	gServer := grpcServer.New(
+		gh,
+	)
+
 	go func() {
 		if err := hServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			l.Fatal().Err(err).Msg("Failed to start server")
+		}
+	}()
+
+	go func() {
+		l.Info().Msgf("grpc server started on port: %s", cfg.GRPC.Port)
+
+		if err := gServer.ListenAndServe(cfg.GRPC.Port); err != nil {
+			l.Fatal().Err(err).Msg("failed to start grpc server")
 		}
 	}()
 
@@ -101,4 +121,5 @@ func main() {
 	} else {
 		l.Info().Msg("server shutdown gracefully")
 	}
+	gServer.Stop()
 }

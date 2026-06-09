@@ -48,7 +48,6 @@ type Cache struct {
 	UserTTL           time.Duration `yaml:"user_ttl"`
 	RoleTTL           time.Duration `yaml:"role_ttl"`
 }
-
 type Config struct {
 	HTTP     HTTP             `yaml:"http"`
 	GRPC     GRPC             `yaml:"grpc"`

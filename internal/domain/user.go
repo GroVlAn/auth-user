@@ -9,10 +9,10 @@ type User struct {
 	Password     string    `json:"password,omitempty" db:"-" valid:"require"`
 	PasswordHash string    `json:"-" db:"password_hash"`
 	Fullname     string    `json:"fullname" db:"fullname" valid:"require"`
-	CreatedAt    time.Time `json:"create_at" db:"created_at"`
 	IsSuperuser  bool      `json:"is_superuser" db:"is_superuser"`
 	IsActive     bool      `json:"is_active" db:"is_active"`
 	IsBanned     bool      `json:"is_banned" db:"is_banned"`
+	CreatedAt    time.Time `json:"create_at" db:"created_at"`
 }
 
 type UserInfo struct {

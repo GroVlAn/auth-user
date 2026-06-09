@@ -1,4 +1,4 @@
-package httphandler
+package http_handler
 
 import (
 	"encoding/json"
