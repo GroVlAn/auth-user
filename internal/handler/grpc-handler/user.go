@@ -16,7 +16,7 @@ func (h *GRPCHandler) Register(ctx context.Context, u *api.User) (*api.Success, 
 		Fullname: u.Fullname,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, h.DefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
 	defer cancel()
 
 	if err := h.s.Create(ctx, user); err != nil {
@@ -35,7 +35,7 @@ func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.Use
 		Email:    uQr.Email,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, h.DefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
 	defer cancel()
 
 	user, err := h.s.User(ctx, userQuery)
@@ -63,7 +63,7 @@ func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api
 		Email:    uQr.Email,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, h.DefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
 	defer cancel()
 
 	userInfo, err := h.s.UserInfo(ctx, userQuery)
@@ -89,7 +89,7 @@ func (h *GRPCHandler) ChangePassword(ctx context.Context, uQrNP *api.UserQueryNe
 		NewPassword: uQrNP.NewPassword,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, h.DefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
 	defer cancel()
 
 	if err := h.s.UpdatePassword(ctx, userQueryNewPassword); err != nil {
@@ -128,7 +128,7 @@ func (h *GRPCHandler) changeUserStatus(
 		Email:    uQr.Email,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, h.DefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
 	defer cancel()
 
 	if err := fn(ctx, userQuery); err != nil {
