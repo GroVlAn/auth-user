@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/GroVlAn/auth-api/user"
+	api "github.com/GroVlAn/auth-api/user"
 	"github.com/GroVlAn/auth-user/internal/domain"
 	"github.com/rs/zerolog"
 )
@@ -21,16 +21,16 @@ type service interface {
 }
 
 type GRPCHandler struct {
-	user.UnimplementedUserServiceServer
+	api.UnimplementedUserServiceServer
 	l              zerolog.Logger
 	s              service
-	DefaultTimeout time.Duration
+	defaultTimeout time.Duration
 }
 
 func New(l zerolog.Logger, s service, defTimeout time.Duration) *GRPCHandler {
 	return &GRPCHandler{
 		l:              l,
 		s:              s,
-		DefaultTimeout: defTimeout,
+		defaultTimeout: defTimeout,
 	}
 }
