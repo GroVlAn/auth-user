@@ -43,6 +43,7 @@ func main() {
 	}
 
 	configPath := flag.String("config", localConfigPath, "Path to the configuration file")
+	flag.Parse()
 
 	cfg, err := config.New(*configPath)
 	if err != nil {
