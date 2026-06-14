@@ -5,6 +5,9 @@ http:
   write_timeout: 10s
   base_http_path: '/api/user'
 
+grpc:
+  port: '8011'
+
 settings:
   default_timeout: 15s
   hash_cost: 12

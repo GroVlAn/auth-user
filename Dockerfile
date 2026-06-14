@@ -14,6 +14,6 @@ FROM scratch
 COPY --from=builder /app/user /user
 COPY .env .
 COPY ./configs ./configs
-EXPOSE 8081
+EXPOSE 8081 8011
 
 ENTRYPOINT ["/user"]

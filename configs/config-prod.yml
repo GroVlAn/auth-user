@@ -1,9 +1,12 @@
 http:
-  port: '8091'
+  port: '8080'
   max_header_bytes: 1048576
   read_header_timeout: 10s
   write_timeout: 10s
   base_http_path: '/api/user'
+
+grpc:
+  port: '8010'
 
 settings:
   default_timeout: 15s

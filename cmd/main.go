@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/GroVlAn/auth-base/crypto"
 	"github.com/GroVlAn/auth-user/internal/config"
 	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
 	httphandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
-	"github.com/GroVlAn/auth-user/internal/infrastructure/crypto"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
