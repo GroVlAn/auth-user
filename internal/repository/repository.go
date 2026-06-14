@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
-	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -31,7 +31,8 @@ func (r *Repository) Create(ctx context.Context, user domain.User) error {
 
 	_, err := r.db.NamedExecContext(ctx, query, user)
 	if err != nil {
-		return e.NewErrInternal(
+		return ew.New(
+			ew.ErrorTypeInternal,
 			fmt.Errorf("creating new user: %w", err),
 		)
 	}
@@ -98,7 +99,10 @@ func (r *Repository) UpdatePassword(ctx context.Context, userID, newPasswordHash
 	)
 
 	if _, err := r.db.ExecContext(ctx, query, newPasswordHash, userID); err != nil {
-		return e.NewErrInternal(fmt.Errorf("changing user password: %w", err))
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("changing user password: %w", err),
+		)
 	}
 
 	return nil
@@ -111,9 +115,19 @@ func (r *Repository) Exist(ctx context.Context, userQuery domain.UserQuery) (boo
 	)
 
 	var exist bool
-	err := r.db.GetContext(ctx, &exist, query, userQuery.ID, userQuery.Username, userQuery.Email)
+	err := r.db.GetContext(
+		ctx,
+		&exist,
+		query,
+		userQuery.ID,
+		userQuery.Username,
+		userQuery.Email,
+	)
 	if err != nil {
-		return false, e.NewErrInternal(err)
+		return false, ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("checking existing user: %w", err),
+		)
 	}
 
 	return exist, nil
@@ -127,7 +141,10 @@ func (r *Repository) BanUser(ctx context.Context, userID string) error {
 
 	fmt.Println("ban user with id:", userID)
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
-		return e.NewErrInternal(err)
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("banning user: %w", err),
+		)
 	}
 
 	return nil
@@ -140,7 +157,10 @@ func (r *Repository) UnbanUser(ctx context.Context, userID string) error {
 	)
 
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
-		return e.NewErrInternal(err)
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("unbanning user: %w", err),
+		)
 	}
 
 	return nil
@@ -153,7 +173,10 @@ func (r *Repository) InactivateUser(ctx context.Context, userID string) error {
 	)
 
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
-		return e.NewErrInternal(err)
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("inactivating user: %w", err),
+		)
 	}
 
 	return nil
@@ -166,7 +189,10 @@ func (r *Repository) RestoreUser(ctx context.Context, userID string) error {
 	)
 
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
-		return e.NewErrInternal(err)
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("restoring user: %w", err),
+		)
 	}
 
 	return nil
@@ -179,7 +205,10 @@ func (r *Repository) DeleteInactiveUser(ctx context.Context) error {
 	)
 
 	if _, err := r.db.ExecContext(ctx, query); err != nil {
-		return e.NewErrInternal(err)
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("deleting inactive user: %w", err),
+		)
 	}
 
 	return nil

@@ -5,9 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
 	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/google/uuid"
+)
+
+const (
+	invalidPassword = "invalid password"
 )
 
 type repo interface {
@@ -51,15 +56,16 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 		Email:    user.Email,
 	})
 	if err != nil {
-		return e.NewErrInternal(
+		return ew.New(
+			ew.ErrorTypeInternal,
 			fmt.Errorf("checking if user exist: %w", err),
 		)
 	}
 	if exist {
-		return e.NewErrConflict(
+		return ew.New(
+			ew.ErrorTypeConflict,
 			e.ErrUserAlreadyExists,
-			e.ErrUserAlreadyExists.Error(),
-		)
+		).Msg(e.ErrUserAlreadyExists.Error())
 	}
 
 	user.ID = uuid.NewString()
@@ -121,7 +127,7 @@ func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword domai
 	}
 
 	if ok, reason := validatePassword(userQueryNewPassword.NewPassword); !ok {
-		return e.NewErrValidation(reason)
+		return ew.NewErrValidation(reason)
 	}
 
 	if err := s.verifyNewPassword(user.PasswordHash, userQueryNewPassword.NewPassword); err != nil {
@@ -200,8 +206,8 @@ func (s *Service) DeleteInactiveUser(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) validateUserQuery(userQuery domain.UserQuery) *e.ErrValidation {
-	err := e.NewErrValidation("validation user query data error")
+func (s *Service) validateUserQuery(userQuery domain.UserQuery) *ew.ErrValidation {
+	err := ew.NewErrValidation("validation user query data error")
 
 	if userQuery.ID == "" && userQuery.Username == "" && userQuery.Email == "" {
 		err.AddField("id|username|email", "at least one field must be provided")
@@ -218,7 +224,7 @@ func (s *Service) validateUserQuery(userQuery domain.UserQuery) *e.ErrValidation
 func (s *Service) verifyNewPassword(oldHash, newPassword string) error {
 	err := s.hasher.Compare(oldHash, newPassword)
 	if err == nil {
-		return e.NewErrValidation("new password must be different from old password")
+		return ew.NewErrValidation("new password must be different from old password")
 	}
 
 	return nil
@@ -227,10 +233,10 @@ func (s *Service) verifyNewPassword(oldHash, newPassword string) error {
 func (s *Service) verifyOldPassword(passwordHash, oldPassword string) error {
 	err := s.hasher.Compare(passwordHash, oldPassword)
 	if err != nil {
-		return e.NewErrUnauthorized(
+		return ew.New(
+			ew.ErrorTypeUnauthorized,
 			fmt.Errorf("comparing hash and password: %w", err),
-			"invalid password",
-		)
+		).Msg(invalidPassword)
 	}
 
 	return nil

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
-	"github.com/GroVlAn/auth-user/internal/domain/e"
 )
 
 const (
@@ -17,8 +17,8 @@ const (
 	invalidPasswordMsg = "Password must be at least 8 characters long and contain: one uppercase letter, one lowercase letter, one number, and one special symbol"
 )
 
-func validateUser(user domain.User) *e.ErrValidation {
-	err := e.NewErrValidation("validation user data error")
+func validateUser(user domain.User) *ew.ErrValidation {
+	err := ew.NewErrValidation("validation user data error")
 
 	if len(user.Username) == 0 {
 		err.AddField("username", "username is required")

@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
-	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/go-chi/chi"
 )
 
@@ -47,9 +47,7 @@ func (h *HTTPHandler) register(w http.ResponseWriter, r *http.Request) {
 		defer cancel()
 
 		if err = h.s.Create(ctx, user); err != nil {
-			status, res := h.handleError(err)
-
-			h.sendResponse(w, res, status)
+			h.handleError(w, err)
 			return
 		}
 
@@ -72,20 +70,20 @@ func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.s.User(ctx, userQuery)
 		if err != nil {
-			status, res := h.handleError(err)
-
-			h.sendResponse(w, res, status)
+			h.handleError(w, err)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(user)
 		if err != nil {
-			status, res := h.handleError(
-				e.NewErrInternal(fmt.Errorf("failed to encode response body: %w", err)),
+			h.handleError(
+				w,
+				ew.New(
+					ew.ErrorTypeInternal,
+					fmt.Errorf("failed to encode response body: %w", err),
+				),
 			)
-
-			h.sendResponse(w, res, status)
 			return
 		}
 	})
@@ -105,20 +103,22 @@ func (h *HTTPHandler) userInfo(w http.ResponseWriter, r *http.Request) {
 
 		userInfo, err := h.s.UserInfo(ctx, userQuery)
 		if err != nil {
-			status, res := h.handleError(err)
+			h.handleError(w, err)
 
-			h.sendResponse(w, res, status)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(userInfo)
 		if err != nil {
-			status, res := h.handleError(
-				e.NewErrInternal(fmt.Errorf("failed to encode response body: %w", err)),
+			h.handleError(
+				w,
+				ew.New(
+					ew.ErrorTypeInternal,
+					fmt.Errorf("failed to encode response body: %w", err),
+				),
 			)
 
-			h.sendResponse(w, res, status)
 			return
 		}
 	})
@@ -138,9 +138,8 @@ func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
 		defer cancel()
 
 		if err := h.s.UpdatePassword(ctx, userQueryNewPassword); err != nil {
-			status, res := h.handleError(err)
+			h.handleError(w, err)
 
-			h.sendResponse(w, res, status)
 			return
 		}
 
@@ -190,9 +189,8 @@ func (h *HTTPHandler) changeUserStatus(
 	defer cancel()
 
 	if err := fn(ctx, userQuery); err != nil {
-		status, res := h.handleError(err)
+		h.handleError(w, err)
 
-		h.sendResponse(w, res, status)
 		return
 	}
 

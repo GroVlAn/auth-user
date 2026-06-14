@@ -4,6 +4,7 @@ go 1.25.1
 
 require (
 	github.com/GroVlAn/auth-api v0.0.0-20260609140631-3ec448ab2120
+	github.com/GroVlAn/auth-base v0.0.0-20260614174515-d76ca1fed316
 	github.com/go-chi/chi v1.5.5
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
@@ -25,7 +26,6 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/GroVlAn/auth-base v0.0.0-20260614153848-cb77aaa6435e
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
