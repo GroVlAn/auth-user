@@ -220,8 +220,10 @@ func TestService_User(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	username := "john_doe"
+
 	validQuery := domain.UserQuery{
-		Username: "john_doe",
+		Username: &username,
 	}
 
 	expectedUser := domain.User{
@@ -295,8 +297,10 @@ func TestService_UserInfo(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	username := "john_doe"
+
 	validQuery := domain.UserQuery{
-		Username: "john_doe",
+		Username: &username,
 	}
 
 	expectedUser := domain.UserInfo{
@@ -369,9 +373,11 @@ func TestService_UpdatePassword(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	username := "john_doe"
+
 	validQueryNewPassword := domain.UserQueryNewPassword{
 		UserQuery: domain.UserQuery{
-			Username: "john_doe",
+			Username: &username,
 		},
 		NewPassword: "NewPassword123!",
 		OldPassword: "OldPassword123!",
@@ -427,7 +433,7 @@ func TestService_UpdatePassword(t *testing.T) {
 			name: "validate new password fails",
 			query: domain.UserQueryNewPassword{
 				UserQuery: domain.UserQuery{
-					Username: "john_doe",
+					Username: &username,
 				},
 				NewPassword: "short",
 				OldPassword: "OldPassword123!",
@@ -447,7 +453,7 @@ func TestService_UpdatePassword(t *testing.T) {
 			name: "verify new password fails - same as old",
 			query: domain.UserQueryNewPassword{
 				UserQuery: domain.UserQuery{
-					Username: "john_doe",
+					Username: &username,
 				},
 				NewPassword: "OldPassword123!",
 				OldPassword: "OldPassword123!",

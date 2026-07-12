@@ -1,6 +1,6 @@
 CREATE TABLE auth_user
 (
-    id varchar(255) PRIMARY KEY NOT NULL UNIQUE,
+    id varchar(255) PRIMARY KEY,
     email text NOT NULL UNIQUE,
     username varchar(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,

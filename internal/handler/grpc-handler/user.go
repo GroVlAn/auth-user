@@ -31,9 +31,9 @@ func (h *GRPCHandler) Register(ctx context.Context, u *api.User) (*api.Success, 
 
 func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.User, error) {
 	userQuery := domain.UserQuery{
-		ID:       uQr.ID,
-		Username: uQr.Username,
-		Email:    uQr.Email,
+		ID:       &uQr.ID,
+		Username: &uQr.Username,
+		Email:    &uQr.Email,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -59,9 +59,9 @@ func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.Use
 
 func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api.UserInfo, error) {
 	userQuery := domain.UserQuery{
-		ID:       uQr.ID,
-		Username: uQr.Username,
-		Email:    uQr.Email,
+		ID:       &uQr.ID,
+		Username: &uQr.Username,
+		Email:    &uQr.Email,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -82,9 +82,9 @@ func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api
 func (h *GRPCHandler) ChangePassword(ctx context.Context, uQrNP *api.UserQueryNewPassword) (*api.Success, error) {
 	userQueryNewPassword := domain.UserQueryNewPassword{
 		UserQuery: domain.UserQuery{
-			ID:       uQrNP.UserQuery.ID,
-			Username: uQrNP.UserQuery.Username,
-			Email:    uQrNP.UserQuery.Email,
+			ID:       &uQrNP.UserQuery.ID,
+			Username: &uQrNP.UserQuery.Username,
+			Email:    &uQrNP.UserQuery.Email,
 		},
 		OldPassword: uQrNP.OldPassword,
 		NewPassword: uQrNP.NewPassword,
@@ -124,9 +124,9 @@ func (h *GRPCHandler) changeUserStatus(
 	fn func(context.Context, domain.UserQuery) error,
 ) (*api.Success, error) {
 	userQuery := domain.UserQuery{
-		ID:       uQr.ID,
-		Username: uQr.Username,
-		Email:    uQr.Email,
+		ID:       &uQr.ID,
+		Username: &uQr.Username,
+		Email:    &uQr.Email,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)

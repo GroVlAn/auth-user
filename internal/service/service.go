@@ -52,8 +52,8 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 	}
 
 	exist, err := s.repo.Exist(ctx, domain.UserQuery{
-		Username: user.Username,
-		Email:    user.Email,
+		Username: &user.Username,
+		Email:    &user.Email,
 	})
 	if err != nil {
 		return ew.New(
@@ -87,7 +87,7 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 }
 
 func (s *Service) User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error) {
-	if err := s.validateUserQuery(userQuery); err != nil {
+	if err := userQuery.Validation(); err != nil {
 		return domain.User{}, fmt.Errorf("validating user query: %w", err)
 	}
 
@@ -100,7 +100,7 @@ func (s *Service) User(ctx context.Context, userQuery domain.UserQuery) (domain.
 }
 
 func (s *Service) UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error) {
-	if err := s.validateUserQuery(userQuery); err != nil {
+	if err := userQuery.Validation(); err != nil {
 		return domain.UserInfo{}, fmt.Errorf("validating user query: %w", err)
 	}
 
@@ -113,7 +113,7 @@ func (s *Service) UserInfo(ctx context.Context, userQuery domain.UserQuery) (dom
 }
 
 func (s *Service) UpdatePassword(ctx context.Context, userQueryNewPassword domain.UserQueryNewPassword) error {
-	if err := s.validateUserQuery(userQueryNewPassword.UserQuery); err != nil {
+	if err := userQueryNewPassword.UserQuery.Validation(); err != nil {
 		return fmt.Errorf("validating user query: %w", err)
 	}
 
@@ -204,21 +204,6 @@ func (s *Service) DeleteInactiveUser(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *Service) validateUserQuery(userQuery domain.UserQuery) *ew.ErrValidation {
-	err := ew.NewErrValidation("validation user query data error")
-
-	if userQuery.ID == "" && userQuery.Username == "" && userQuery.Email == "" {
-		err.AddField("id|username|email", "at least one field must be provided")
-	}
-
-	if err.IsEmpty() {
-		return nil
-	}
-
-	return err
-
 }
 
 func (s *Service) verifyNewPassword(oldHash, newPassword string) error {

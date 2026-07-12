@@ -27,15 +27,15 @@ type Deps struct {
 }
 
 type HTTPHandler struct {
-	s service
 	l zerolog.Logger
+	s service
 	Deps
 }
 
-func New(s service, l zerolog.Logger, deps Deps) *HTTPHandler {
+func New(l zerolog.Logger, s service, deps Deps) *HTTPHandler {
 	return &HTTPHandler{
-		s:    s,
 		l:    l,
+		s:    s,
 		Deps: deps,
 	}
 }
@@ -43,7 +43,7 @@ func New(s service, l zerolog.Logger, deps Deps) *HTTPHandler {
 func (h *HTTPHandler) Handler() http.Handler {
 	r := chi.NewRouter()
 
-	h.useMiddleware(r)
+	h.cors(r)
 
 	r.Route("/", func(r chi.Router) {
 		r.Get("/home", func(w http.ResponseWriter, r *http.Request) {

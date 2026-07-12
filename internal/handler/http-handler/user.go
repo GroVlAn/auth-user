@@ -3,18 +3,16 @@ package http_handler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
-	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
 	"github.com/go-chi/chi"
 )
 
 const (
 	registerEndpoint       = "/register"
-	userEndpoint           = "/"
+	userEndPoint           = "/"
 	userInfoEndpoint       = "/info"
 	changePasswordEndpoint = "/change-password"
 	inactivateUserEndpoint = "/inactivate"
@@ -25,7 +23,7 @@ const (
 
 func (h *HTTPHandler) userRoute(r chi.Router) {
 	r.Post(registerEndpoint, h.register)
-	r.Get(userEndpoint, h.user)
+	r.Get(userEndPoint, h.user)
 	r.Get(userInfoEndpoint, h.userInfo)
 	r.Patch(changePasswordEndpoint, h.changePassword)
 	r.Patch(inactivateUserEndpoint, h.inactivateUser)
@@ -51,77 +49,48 @@ func (h *HTTPHandler) register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("user created"))
+		h.sendSuccessResponse(w, "user created", http.StatusCreated)
 	})
 }
 
 func (h *HTTPHandler) user(w http.ResponseWriter, r *http.Request) {
-	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var userQuery domain.UserQuery
-		err := json.NewDecoder(body).Decode(&userQuery)
-		if err != nil {
-			h.handleDecodeBody(w, err)
-			return
-		}
+	query := r.URL.Query()
 
-		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
-		defer cancel()
+	req := domain.UserQuery{}
 
-		user, err := h.s.User(ctx, userQuery)
-		if err != nil {
-			h.handleError(w, err)
-			return
-		}
+	if id := query.Get("id"); len(id) > 0 {
+		req.ID = &id
+	}
 
-		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(user)
-		if err != nil {
-			h.handleError(
-				w,
-				ew.New(
-					ew.ErrorTypeInternal,
-					fmt.Errorf("failed to encode response body: %w", err),
-				),
-			)
-			return
-		}
-	})
+	if username := query.Get("username"); len(username) > 0 {
+		req.Username = &username
+	}
+
+	if email := query.Get("email"); len(email) > 0 {
+		req.Email = &email
+	}
+
+	h.userByQuery(w, r, req)
 }
 
 func (h *HTTPHandler) userInfo(w http.ResponseWriter, r *http.Request) {
-	h.withBodyClose(r.Body, func(body io.ReadCloser) {
-		var userQuery domain.UserQuery
-		err := json.NewDecoder(body).Decode(&userQuery)
-		if err != nil {
-			h.handleDecodeBody(w, err)
-			return
-		}
+	query := r.URL.Query()
 
-		ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
-		defer cancel()
+	req := domain.UserQuery{}
 
-		userInfo, err := h.s.UserInfo(ctx, userQuery)
-		if err != nil {
-			h.handleError(w, err)
+	if id := query.Get("id"); len(id) > 0 {
+		req.ID = &id
+	}
 
-			return
-		}
+	if username := query.Get("username"); len(username) > 0 {
+		req.Username = &username
+	}
 
-		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(userInfo)
-		if err != nil {
-			h.handleError(
-				w,
-				ew.New(
-					ew.ErrorTypeInternal,
-					fmt.Errorf("failed to encode response body: %w", err),
-				),
-			)
+	if email := query.Get("email"); len(email) > 0 {
+		req.Email = &email
+	}
 
-			return
-		}
-	})
+	h.userInfoByQuery(w, r, req)
 }
 
 func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
@@ -143,8 +112,7 @@ func (h *HTTPHandler) changePassword(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("password changed"))
+		h.sendSuccessResponse(w, "password changed", http.StatusOK)
 	})
 }
 
@@ -172,6 +140,33 @@ func (h *HTTPHandler) unbanUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *HTTPHandler) userByQuery(w http.ResponseWriter, r *http.Request, userQuery domain.UserQuery) {
+	ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
+	defer cancel()
+
+	user, err := h.s.User(ctx, userQuery)
+	if err != nil {
+		h.handleError(w, err)
+		return
+	}
+
+	h.sendResponseWithData(w, user, http.StatusOK)
+}
+
+func (h *HTTPHandler) userInfoByQuery(w http.ResponseWriter, r *http.Request, userQuery domain.UserQuery) {
+	ctx, cancel := context.WithTimeout(r.Context(), h.DefaultTimeout)
+	defer cancel()
+
+	userInfo, err := h.s.UserInfo(ctx, userQuery)
+	if err != nil {
+		h.handleError(w, err)
+
+		return
+	}
+
+	h.sendResponseWithData(w, userInfo, http.StatusOK)
+}
+
 func (h *HTTPHandler) changeUserStatus(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -194,6 +189,5 @@ func (h *HTTPHandler) changeUserStatus(
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(successMessage))
+	h.sendSuccessResponse(w, successMessage, http.StatusOK)
 }

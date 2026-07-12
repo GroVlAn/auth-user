@@ -12,7 +12,7 @@ import (
 	"github.com/GroVlAn/auth-base/crypto"
 	"github.com/GroVlAn/auth-user/internal/config"
 	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
-	httphandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
+	httpHandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
@@ -74,7 +74,7 @@ func main() {
 
 	s := service.New(r, hasher)
 
-	h := httphandler.New(s, l, httphandler.Deps{
+	h := httpHandler.New(l, s, httpHandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,
 		DefaultTimeout: cfg.Settings.DefaultTimeout,
 	})

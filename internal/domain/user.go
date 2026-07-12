@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/GroVlAn/auth-base/ew"
+)
 
 type User struct {
 	ID           string    `json:"-" db:"id" valid:"require"`
@@ -22,13 +26,39 @@ type UserInfo struct {
 }
 
 type UserQuery struct {
-	ID       string `json:"id" valid:"optional"`
-	Username string `json:"username" valid:"optional"`
-	Email    string `json:"email" valid:"optional"`
+	ID       *string
+	Username *string
+	Email    *string
 }
 
 type UserQueryNewPassword struct {
 	UserQuery
 	OldPassword string `json:"old_password" valid:"require"`
 	NewPassword string `json:"new_password" valid:"require"`
+}
+
+func (uq UserQuery) Validation() error {
+	err := ew.NewErrValidation("validation user query data error")
+
+	var count int
+
+	if uq.ID != nil {
+		count++
+	}
+	if uq.Username != nil {
+		count++
+	}
+	if uq.Email != nil {
+		count++
+	}
+
+	if count == 0 {
+		err.AddField("id|username|email", "at least one field must be provided")
+	}
+
+	if err.IsEmpty() {
+		return nil
+	}
+
+	return err
 }
