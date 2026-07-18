@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/GroVlAn/auth-api/user"
+	api "github.com/GroVlAn/auth-api/user"
 	"google.golang.org/grpc"
 )
 
 type Server struct {
 	srv     *grpc.Server
-	handler user.UserServiceServer
+	handler api.UserServiceServer
 }
 
-func New(handler user.UserServiceServer) *Server {
+func New(handler api.UserServiceServer) *Server {
 	return &Server{
 		srv:     grpc.NewServer(),
 		handler: handler,
@@ -26,7 +26,7 @@ func (s *Server) ListenAndServe(port string) error {
 		return fmt.Errorf("listening tcp server: %w", err)
 	}
 
-	user.RegisterUserServiceServer(s.srv, s.handler)
+	api.RegisterUserServiceServer(s.srv, s.handler)
 
 	if err = s.srv.Serve(lis); err != nil {
 		return fmt.Errorf("serving grpc server: %w", err)
