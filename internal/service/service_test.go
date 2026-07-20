@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/GroVlAn/auth-user/internal/domain"
+	"github.com/GroVlAn/auth-user/internal/infrastructure/publisher"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -200,7 +201,8 @@ func TestService_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
-			s := New(mockRepo, hasherRepo)
+			pub := publisher.New(publisher.Conf{})
+			s := New(mockRepo, hasherRepo, pub)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo, hasherRepo)
@@ -278,7 +280,8 @@ func TestService_User(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
-			s := New(mockRepo, hasherRepo)
+			pub := publisher.New(publisher.Conf{})
+			s := New(mockRepo, hasherRepo, pub)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo)
@@ -354,7 +357,8 @@ func TestService_UserInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
-			s := New(mockRepo, hasherRepo)
+			pub := publisher.New(publisher.Conf{})
+			s := New(mockRepo, hasherRepo, pub)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo)
@@ -519,7 +523,8 @@ func TestService_UpdatePassword(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
-			s := New(mockRepo, hasherRepo)
+			pub := publisher.New(publisher.Conf{})
+			s := New(mockRepo, hasherRepo, pub)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo, hasherRepo)

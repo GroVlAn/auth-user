@@ -15,6 +15,10 @@ type PostgresSettings struct {
 	SSLMode  string
 }
 
+type PostgresqlDB struct {
+	db *sqlx.DB
+}
+
 func NewPostgresqlDB(settings PostgresSettings) (*sqlx.DB, error) {
 	db, err := sqlx.Open(
 		"postgres",

@@ -14,6 +14,7 @@ import (
 	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
 	httpHandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
+	"github.com/GroVlAn/auth-user/internal/infrastructure/publisher"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
@@ -61,6 +62,11 @@ func main() {
 	if err != nil {
 		l.Fatal().Err(err).Msg("failed to connect to database")
 	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			l.Error().Err(err).Msg("failed to close postgresql db connection")
+		}
+	}()
 
 	r := repository.New(db)
 
@@ -72,7 +78,17 @@ func main() {
 		SaltLen: cfg.Hasher.SaltLen,
 	})
 
-	s := service.New(r, hasher)
+	pub := publisher.New(publisher.Conf{
+		Brokers: cfg.Kafka.Brokers,
+		Topic:   cfg.Kafka.Topic,
+	})
+	defer func() {
+		if err := pub.Close(); err != nil {
+			l.Error().Err(err).Msg("failed to close kafka event user publisher")
+		}
+	}()
+
+	s := service.New(r, hasher, pub)
 
 	h := httpHandler.New(l, s, httpHandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,
@@ -99,28 +115,57 @@ func main() {
 		gh,
 	)
 
+	errCh := make(chan error, 2)
+
 	go func() {
-		if err := hServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			l.Fatal().Err(err).Msg("Failed to start server")
+		l.Info().Msgf("starting http server on port: %s", cfg.HTTP.Port)
+
+		err := hServer.ListenAndServe()
+
+		if err != nil && err != http.ErrServerClosed {
+			errCh <- err
 		}
 	}()
 
 	go func() {
-		l.Info().Msgf("grpc server started on port: %s", cfg.GRPC.Port)
+		l.Info().Msgf("starting grpc server on port: %s", cfg.GRPC.Port)
 
 		if err := gServer.ListenAndServe(cfg.GRPC.Port); err != nil {
-			l.Fatal().Err(err).Msg("failed to start grpc server")
+			errCh <- err
 		}
+
 	}()
 
-	l.Info().Msgf("server start on port: %s load time: %v", cfg.HTTP.Port, time.Since(timeStart))
+	l.Info().
+		Dur("startup_time", time.Since(timeStart)).
+		Str("http_port", cfg.HTTP.Port).
+		Str("grpc_port", cfg.GRPC.Port).
+		Msg("server started")
 
-	<-ctx.Done()
-	err = hServer.Shutdown(ctx)
-	if err != nil {
-		l.Fatal().Err(err).Msg("failed to shutdown server")
-	} else {
-		l.Info().Msg("server shutdown gracefully")
+	shutdown := func() {
+		shutdownCtx, cancel := context.WithTimeout(
+			context.Background(),
+			10*time.Second,
+		)
+		defer cancel()
+
+		if err := hServer.Shutdown(shutdownCtx); err != nil {
+			l.Error().Err(err).Msg("failed to shutdown server")
+		} else {
+			l.Info().Msg("server shutdown gracefully")
+		}
+		gServer.Stop()
 	}
-	gServer.Stop()
+
+	select {
+	case <-ctx.Done():
+		shutdown()
+	case err := <-errCh:
+		if err != nil {
+			l.Error().Err(err).Msg("server exited with error")
+
+			shutdown()
+		}
+	}
+
 }

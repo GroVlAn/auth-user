@@ -8,6 +8,11 @@ http:
 grpc:
   port: '8011'
 
+kafka:
+  brokers:
+    - 'localhost:7788'
+  topic: 'user-role'
+
 settings:
   default_timeout: 15s
   hash_cost: 12

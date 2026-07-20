@@ -28,21 +28,26 @@ type repo interface {
 	DeleteInactiveUser(ctx context.Context) error
 }
 
+type userEventPublisher interface {
+	PublishUserID(ctx context.Context, userID string) error
+}
+
 type hasher interface {
 	Hash(password string) (string, error)
 	Compare(encodedHash, password string) error
 }
 
 type Service struct {
-	repo     repo
-	hasher   hasher
-	hashCost int
+	repo   repo
+	hasher hasher
+	pub    userEventPublisher
 }
 
-func New(repo repo, hasher hasher) *Service {
+func New(repo repo, hasher hasher, pub userEventPublisher) *Service {
 	return &Service{
 		repo:   repo,
 		hasher: hasher,
+		pub:    pub,
 	}
 }
 
@@ -81,6 +86,13 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 
 	if err = s.repo.Create(ctx, user); err != nil {
 		return fmt.Errorf("creating user: %w", err)
+	}
+
+	if err := s.pub.PublishUserID(ctx, user.ID); err != nil {
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("sending user id to bind role: %w", err),
+		)
 	}
 
 	return nil
