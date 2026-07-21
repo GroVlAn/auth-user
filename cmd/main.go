@@ -79,8 +79,9 @@ func main() {
 	})
 
 	pub := publisher.New(publisher.Conf{
-		Brokers: cfg.Kafka.Brokers,
-		Topic:   cfg.Kafka.Topic,
+		Brokers:   cfg.Kafka.Brokers,
+		Topic:     cfg.Kafka.Topic,
+		KeyUserID: cfg.Kafka.KeyUserID,
 	})
 	defer func() {
 		if err := pub.Close(); err != nil {

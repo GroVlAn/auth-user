@@ -21,8 +21,9 @@ type GRPC struct {
 }
 
 type Kafka struct {
-	Brokers []string `yaml:"brokers"`
-	Topic   string   `yaml:"topic"`
+	Brokers   []string `yaml:"brokers"`
+	Topic     string   `yaml:"topic"`
+	KeyUserID string   `yaml:"key_user_id"`
 }
 
 type Settings struct {

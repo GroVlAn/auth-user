@@ -8,12 +8,14 @@ import (
 )
 
 type Conf struct {
-	Brokers []string
-	Topic   string
+	Brokers   []string
+	Topic     string
+	KeyUserID string
 }
 
 type UserEventPublisher struct {
 	producer *kafka.Writer
+	Conf
 }
 
 func New(cfg Conf) *UserEventPublisher {
@@ -24,13 +26,16 @@ func New(cfg Conf) *UserEventPublisher {
 				Topic:   cfg.Topic,
 			},
 		),
+		Conf: cfg,
 	}
 }
 
 func (p *UserEventPublisher) PublishUserID(ctx context.Context, userID string) error {
-	err := p.producer.WriteMessages(ctx, kafka.Message{
-		Value: []byte(userID),
-	})
+	err := p.producer.WriteMessages(ctx,
+		kafka.Message{
+			Key:   []byte(p.Conf.KeyUserID),
+			Value: []byte(userID),
+		})
 	if err != nil {
 		return fmt.Errorf("publishing user id: %w", err)
 	}
