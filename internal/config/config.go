@@ -17,13 +17,9 @@ type HTTP struct {
 }
 
 type GRPC struct {
-	Port string `yaml:"port"`
-}
-
-type Kafka struct {
-	Brokers   []string `yaml:"brokers"`
-	Topic     string   `yaml:"topic"`
-	KeyUserID string   `yaml:"key_user_id"`
+	Port          string `yaml:"port"`
+	AccessApiHost string `yaml:"access_api_host"`
+	AccessApiPort string `yaml:"access_api_port"`
 }
 
 type Settings struct {
@@ -57,7 +53,6 @@ type Cache struct {
 type Config struct {
 	HTTP     HTTP             `yaml:"http"`
 	GRPC     GRPC             `yaml:"grpc"`
-	Kafka    Kafka            `yaml:"kafka"`
 	DB       PostgresSettings `yaml:"db"`
 	Settings Settings         `yaml:"settings"`
 	Cache    Cache            `yaml:"cache"`

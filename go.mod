@@ -3,7 +3,7 @@ module github.com/GroVlAn/auth-user
 go 1.25.1
 
 require (
-	github.com/GroVlAn/auth-api v0.0.0-20260609140631-3ec448ab2120
+	github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635
 	github.com/GroVlAn/auth-base v0.0.0-20260614174515-d76ca1fed316
 	github.com/go-chi/chi v1.5.5
 	github.com/google/uuid v1.6.0

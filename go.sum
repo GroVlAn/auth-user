@@ -4,6 +4,8 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/GroVlAn/auth-api v0.0.0-20260609140631-3ec448ab2120 h1:r25cf4G7GfFAtmNaI0Xy1r6Gctaya/IIgk3VBhhJaME=
 github.com/GroVlAn/auth-api v0.0.0-20260609140631-3ec448ab2120/go.mod h1:yo5d2rHjM3vAKMXPokMVxsDinlf55YsA3mNlGgg7/SE=
+github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635 h1:zEJ6oXIFPQWompTQMROOw8mHCcRxmNHcVivTVQC0680=
+github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635/go.mod h1:yo5d2rHjM3vAKMXPokMVxsDinlf55YsA3mNlGgg7/SE=
 github.com/GroVlAn/auth-base v0.0.0-20260614174515-d76ca1fed316 h1:YPD0vxcJ55C+a1wfwyOaXINe2h//65Id3K9SNCY56zo=
 github.com/GroVlAn/auth-base v0.0.0-20260614174515-d76ca1fed316/go.mod h1:R0efpy/UWuKbjYfq2xiZSxxRAEnCeEHek97Fv2YOji0=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=

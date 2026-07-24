@@ -14,12 +14,15 @@ import (
 	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
 	httpHandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
+	grpcClient "github.com/GroVlAn/auth-user/internal/infrastructure/grpc-client"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
 	"github.com/GroVlAn/auth-user/internal/service"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -77,7 +80,24 @@ func main() {
 		SaltLen: cfg.Hasher.SaltLen,
 	})
 
-	s := service.New(r, hasher)
+	conn, err := grpc.NewClient(
+		cfg.GRPC.AccessApiHost+":"+cfg.GRPC.AccessApiPort,
+		grpc.WithTransportCredentials(
+			insecure.NewCredentials(),
+		),
+	)
+	if err != nil {
+		l.Fatal().Err(err).Msg("failed to grpc user service client")
+	}
+	defer func() {
+		if err := conn.Close(); err != nil {
+			l.Error().Err(err).Msg("failed close grpc connection")
+		}
+	}()
+
+	grpcClient := grpcClient.New(conn)
+
+	s := service.New(r, hasher, grpcClient)
 
 	h := httpHandler.New(l, s, httpHandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,

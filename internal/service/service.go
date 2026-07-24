@@ -33,15 +33,21 @@ type hasher interface {
 	Compare(encodedHash, password string) error
 }
 
-type Service struct {
-	repo   repo
-	hasher hasher
+type accessGRPCClient interface {
+	BindUserRole(ctx context.Context, userID string) error
 }
 
-func New(repo repo, hasher hasher) *Service {
+type Service struct {
+	repo         repo
+	accessClient accessGRPCClient
+	hasher       hasher
+}
+
+func New(repo repo, hasher hasher, accessClient accessGRPCClient) *Service {
 	return &Service{
-		repo:   repo,
-		hasher: hasher,
+		repo:         repo,
+		accessClient: accessClient,
+		hasher:       hasher,
 	}
 }
 
@@ -80,6 +86,10 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 
 	if err = s.repo.Create(ctx, user); err != nil {
 		return fmt.Errorf("creating user: %w", err)
+	}
+
+	if err := s.accessClient.BindUserRole(ctx, user.ID); err != nil {
+		return fmt.Errorf("binding user role: %w", err)
 	}
 
 	return nil

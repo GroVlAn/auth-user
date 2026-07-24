@@ -200,8 +200,9 @@ func TestService_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
+			accessGRPCClient := new(mockaccessGRPCClient)
 
-			s := New(mockRepo, hasherRepo)
+			s := New(mockRepo, hasherRepo, accessGRPCClient)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo, hasherRepo)
@@ -279,8 +280,9 @@ func TestService_User(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
+			accessGRPCClient := new(mockaccessGRPCClient)
 
-			s := New(mockRepo, hasherRepo)
+			s := New(mockRepo, hasherRepo, accessGRPCClient)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo)
@@ -356,8 +358,9 @@ func TestService_UserInfo(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
+			accessGRPCClient := new(mockaccessGRPCClient)
 
-			s := New(mockRepo, hasherRepo)
+			s := New(mockRepo, hasherRepo, accessGRPCClient)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo)
@@ -522,8 +525,9 @@ func TestService_UpdatePassword(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mockrepo)
 			hasherRepo := new(mockhasher)
+			accessGRPCClient := new(mockaccessGRPCClient)
 
-			s := New(mockRepo, hasherRepo)
+			s := New(mockRepo, hasherRepo, accessGRPCClient)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mockRepo, hasherRepo)

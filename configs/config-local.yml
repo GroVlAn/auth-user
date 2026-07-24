@@ -1,17 +1,14 @@
 http:
-  port: '8081'
+  port: '9082'
   max_header_bytes: 1048576
   read_header_timeout: 10s
   write_timeout: 10s
   base_http_path: '/api/v1/user'
 
 grpc:
-  port: '8011'
-
-kafka:
-  brokers:
-    - 'localhost:7788'
-  topic: 'user-role'
+  port: '9012'
+  access_api_host: 'access'
+  access_api_port: '9013'
 
 settings:
   default_timeout: 15s
