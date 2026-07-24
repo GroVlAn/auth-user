@@ -14,7 +14,6 @@ import (
 	grpcHandler "github.com/GroVlAn/auth-user/internal/handler/grpc-handler"
 	httpHandler "github.com/GroVlAn/auth-user/internal/handler/http-handler"
 	"github.com/GroVlAn/auth-user/internal/infrastructure/database"
-	"github.com/GroVlAn/auth-user/internal/infrastructure/publisher"
 	"github.com/GroVlAn/auth-user/internal/repository"
 	grpcServer "github.com/GroVlAn/auth-user/internal/server/grpc-server"
 	httpserver "github.com/GroVlAn/auth-user/internal/server/http-server"
@@ -78,18 +77,7 @@ func main() {
 		SaltLen: cfg.Hasher.SaltLen,
 	})
 
-	pub := publisher.New(publisher.Conf{
-		Brokers:   cfg.Kafka.Brokers,
-		Topic:     cfg.Kafka.Topic,
-		KeyUserID: cfg.Kafka.KeyUserID,
-	})
-	defer func() {
-		if err := pub.Close(); err != nil {
-			l.Error().Err(err).Msg("failed to close kafka event user publisher")
-		}
-	}()
-
-	s := service.New(r, hasher, pub)
+	s := service.New(r, hasher)
 
 	h := httpHandler.New(l, s, httpHandler.Deps{
 		BasePath:       cfg.HTTP.BaseHTTPPath,
