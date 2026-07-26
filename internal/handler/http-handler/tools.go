@@ -89,7 +89,7 @@ func (h *HTTPHandler) sendResponse(w http.ResponseWriter, resp domain.Response, 
 }
 
 func (h *HTTPHandler) handleError(w http.ResponseWriter, err error) {
-	respErr := httpx.HandleError(err)
+	respErr := httpx.HandleError(h.l, err)
 
 	resp := domain.Response{
 		Error: &domain.ErrorResponse{
@@ -98,8 +98,6 @@ func (h *HTTPHandler) handleError(w http.ResponseWriter, err error) {
 		},
 		Data: respErr.Fields,
 	}
-
-	h.l.Err(err).Msg(respErr.LogMsg)
 
 	h.sendResponse(w, resp, respErr.Status)
 }

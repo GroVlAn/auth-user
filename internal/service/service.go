@@ -25,6 +25,7 @@ type repo interface {
 	UnbanUser(ctx context.Context, userID string) error
 	InactivateUser(ctx context.Context, userID string) error
 	RestoreUser(ctx context.Context, userID string) error
+	DeleteUser(ctx context.Context, id string) error
 	DeleteInactiveUser(ctx context.Context) error
 }
 
@@ -89,6 +90,10 @@ func (s *Service) Create(ctx context.Context, user domain.User) error {
 	}
 
 	if err := s.accessClient.BindUserRole(ctx, user.ID); err != nil {
+		if err := s.repo.DeleteUser(ctx, user.ID); err != nil {
+			return fmt.Errorf("deleting not binding role user: %w", err)
+		}
+
 		return fmt.Errorf("binding user role: %w", err)
 	}
 

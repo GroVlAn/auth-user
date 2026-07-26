@@ -203,6 +203,63 @@ func (_c *mockrepo_DeleteInactiveUser_Call) RunAndReturn(run func(ctx context.Co
 	return _c
 }
 
+// DeleteUser provides a mock function for the type mockrepo
+func (_mock *mockrepo) DeleteUser(ctx context.Context, id string) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteUser")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// mockrepo_DeleteUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteUser'
+type mockrepo_DeleteUser_Call struct {
+	*mock.Call
+}
+
+// DeleteUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *mockrepo_Expecter) DeleteUser(ctx interface{}, id interface{}) *mockrepo_DeleteUser_Call {
+	return &mockrepo_DeleteUser_Call{Call: _e.mock.On("DeleteUser", ctx, id)}
+}
+
+func (_c *mockrepo_DeleteUser_Call) Run(run func(ctx context.Context, id string)) *mockrepo_DeleteUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *mockrepo_DeleteUser_Call) Return(err error) *mockrepo_DeleteUser_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *mockrepo_DeleteUser_Call) RunAndReturn(run func(ctx context.Context, id string) error) *mockrepo_DeleteUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Exist provides a mock function for the type mockrepo
 func (_mock *mockrepo) Exist(ctx context.Context, userQuery domain.UserQuery) (bool, error) {
 	ret := _mock.Called(ctx, userQuery)

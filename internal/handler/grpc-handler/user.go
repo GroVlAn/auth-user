@@ -21,7 +21,7 @@ func (h *GRPCHandler) Register(ctx context.Context, u *api.User) (*api.Success, 
 	defer cancel()
 
 	if err := h.s.Create(ctx, user); err != nil {
-		return nil, grpcx.HandleError(err)
+		return nil, grpcx.HandleError(h.l, err)
 	}
 
 	return &api.Success{
@@ -41,7 +41,7 @@ func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.Use
 
 	user, err := h.s.User(ctx, userQuery)
 	if err != nil {
-		return nil, grpcx.HandleError(err)
+		return nil, grpcx.HandleError(h.l, err)
 	}
 
 	return &api.User{
@@ -69,7 +69,7 @@ func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api
 
 	userInfo, err := h.s.UserInfo(ctx, userQuery)
 	if err != nil {
-		return nil, grpcx.HandleError(err)
+		return nil, grpcx.HandleError(h.l, err)
 	}
 
 	return &api.UserInfo{
@@ -94,7 +94,7 @@ func (h *GRPCHandler) ChangePassword(ctx context.Context, uQrNP *api.UserQueryNe
 	defer cancel()
 
 	if err := h.s.UpdatePassword(ctx, userQueryNewPassword); err != nil {
-		return nil, grpcx.HandleError(err)
+		return nil, grpcx.HandleError(h.l, err)
 	}
 
 	return &api.Success{
@@ -133,7 +133,7 @@ func (h *GRPCHandler) changeUserStatus(
 	defer cancel()
 
 	if err := fn(ctx, userQuery); err != nil {
-		return nil, grpcx.HandleError(err)
+		return nil, grpcx.HandleError(h.l, err)
 	}
 
 	return &api.Success{

@@ -198,6 +198,23 @@ func (r *Repository) RestoreUser(ctx context.Context, userID string) error {
 	return nil
 }
 
+func (r *Repository) DeleteUser(ctx context.Context, id string) error {
+	query := fmt.Sprintf(`
+		DELETE FROM %s WHERE id=$1
+	`,
+		userTable,
+	)
+
+	if _, err := r.db.ExecContext(ctx, query, id); err != nil {
+		return ew.New(
+			ew.ErrorTypeInternal,
+			fmt.Errorf("deleting user: %w", err),
+		)
+	}
+
+	return nil
+}
+
 func (r *Repository) DeleteInactiveUser(ctx context.Context) error {
 	query := fmt.Sprintf(
 		`DELETE FROM %s WHERE is_active=false`,
