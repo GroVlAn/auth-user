@@ -27,21 +27,10 @@ type Settings struct {
 	HashCost       int           `yaml:"hash_cost"`
 }
 
-type Hasher struct {
-	Time    uint32 `env:"HASH_TIME" env-required:"true"`
-	Memory  uint32 `env:"HASH_MEMORY" env-required:"true"`
-	Threads uint8  `env:"HASH_THREADS" env-required:"true"`
-	KeyLen  uint32 `env:"HASH_KEY_LEN" env-required:"true"`
-	SaltLen uint32 `env:"HASH_SALT_LEN" env-required:"true"`
-}
-
 type PostgresSettings struct {
-	Host     string `yaml:"host" env-required:"true"`
-	Port     string `yaml:"port"`
-	Username string `env:"DB_USERNAME" env-required:"true"`
-	Password string `env:"DB_PASSWORD" env-required:"true"`
-	DBName   string `env:"DB_NAME" env-required:"true"`
-	SSLMode  string `yaml:"ssl_mode"`
+	Host    string `yaml:"host" env-required:"true"`
+	Port    string `yaml:"port"`
+	SSLMode string `yaml:"ssl_mode"`
 }
 
 type Cache struct {
@@ -50,13 +39,26 @@ type Cache struct {
 	UserTTL           time.Duration `yaml:"user_ttl"`
 	RoleTTL           time.Duration `yaml:"role_ttl"`
 }
+
+type Vault struct {
+	SecretToken string `env:"VAULT_SECRET_TOKEN" env-required:"true"`
+	Address     string `env:"VAULT_ADDRESS" env-required:"true"`
+	Mount       string `env:"VAULT_MOUNT" env-required:"true"`
+}
+
+type VaultPaths struct {
+	Postgres string `env:"POSTGRES_PATH" env-required:"true"`
+	Hasher   string `env:"HASHER_PATH" env-required:"true"`
+}
+
 type Config struct {
-	HTTP     HTTP             `yaml:"http"`
-	GRPC     GRPC             `yaml:"grpc"`
-	DB       PostgresSettings `yaml:"db"`
-	Settings Settings         `yaml:"settings"`
-	Cache    Cache            `yaml:"cache"`
-	Hasher   Hasher
+	HTTP       HTTP             `yaml:"http"`
+	GRPC       GRPC             `yaml:"grpc"`
+	DB         PostgresSettings `yaml:"db"`
+	Settings   Settings         `yaml:"settings"`
+	Cache      Cache            `yaml:"cache"`
+	Vault      Vault
+	VaultPaths VaultPaths
 }
 
 func New(path string) (*Config, error) {

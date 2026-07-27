@@ -139,7 +139,6 @@ func (r *Repository) BanUser(ctx context.Context, userID string) error {
 		userTable,
 	)
 
-	fmt.Println("ban user with id:", userID)
 	if _, err := r.db.ExecContext(ctx, query, userID); err != nil {
 		return ew.New(
 			ew.ErrorTypeInternal,
