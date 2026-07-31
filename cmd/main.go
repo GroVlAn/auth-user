@@ -120,10 +120,22 @@ func main() {
 
 	s := service.New(r, hasher, grpcClient)
 
-	h := httpHandler.New(l, s, httpHandler.Deps{
-		BasePath:       cfg.HTTP.BaseHTTPPath,
-		DefaultTimeout: cfg.Settings.DefaultTimeout,
-	})
+	h := httpHandler.New(
+		l,
+		s,
+		httpHandler.Deps{
+			BasePath:       cfg.HTTP.BaseHTTPPath,
+			DefaultTimeout: cfg.Settings.DefaultTimeout,
+		},
+		httpHandler.MiddlewareConf{
+			AllowedOrigins:   cfg.Middleware.AllowedOrigins,
+			AllowedMethods:   cfg.Middleware.AllowedMethods,
+			AllowedHeaders:   cfg.Middleware.AllowedHeaders,
+			ExposedHeaders:   cfg.Middleware.ExposedHeaders,
+			AllowCredentials: cfg.Middleware.AllowCredentials,
+			MaxAge:           cfg.Middleware.MaxAge,
+		},
+	)
 
 	gh := grpcHandler.New(
 		l,
