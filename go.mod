@@ -4,7 +4,7 @@ go 1.25.1
 
 require (
 	github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635
-	github.com/GroVlAn/auth-base v0.0.0-20260725103856-0f107994aba2
+	github.com/GroVlAn/auth-base v0.0.0-20260801082730-39e33b8e9214
 	github.com/go-chi/chi v1.5.5
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
@@ -28,7 +28,7 @@ require (
 	github.com/hashicorp/go-sockaddr v1.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/time v0.12.0 // indirect

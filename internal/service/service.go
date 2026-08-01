@@ -7,7 +7,6 @@ import (
 
 	"github.com/GroVlAn/auth-base/ew"
 	"github.com/GroVlAn/auth-user/internal/domain"
-	"github.com/GroVlAn/auth-user/internal/domain/e"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +19,6 @@ type repo interface {
 	User(ctx context.Context, userQuery domain.UserQuery) (domain.User, error)
 	UserInfo(ctx context.Context, userQuery domain.UserQuery) (domain.UserInfo, error)
 	UpdatePassword(ctx context.Context, userID, newPasswordHash string) error
-	Exist(ctx context.Context, userQuery domain.UserQuery) (bool, error)
 	BanUser(ctx context.Context, userID string) error
 	UnbanUser(ctx context.Context, userID string) error
 	InactivateUser(ctx context.Context, userID string) error
@@ -55,23 +53,6 @@ func New(repo repo, hasher hasher, accessClient accessGRPCClient) *Service {
 func (s *Service) Create(ctx context.Context, user domain.User) error {
 	if err := validateUser(user); err != nil {
 		return err
-	}
-
-	exist, err := s.repo.Exist(ctx, domain.UserQuery{
-		Username: &user.Username,
-		Email:    &user.Email,
-	})
-	if err != nil {
-		return ew.New(
-			ew.ErrorTypeInternal,
-			fmt.Errorf("checking if user exist: %w", err),
-		)
-	}
-	if exist {
-		return ew.New(
-			ew.ErrorTypeConflict,
-			e.ErrUserAlreadyExists,
-		).Msg(e.ErrUserAlreadyExists.Error())
 	}
 
 	user.ID = uuid.NewString()
