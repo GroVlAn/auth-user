@@ -9,12 +9,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (h *GRPCHandler) Register(ctx context.Context, u *api.User) (*api.Success, error) {
+func (h *GRPCHandler) Register(ctx context.Context, req *api.User) (*api.Success, error) {
 	user := domain.User{
-		Username: u.Username,
-		Email:    u.Email,
-		Password: u.Password,
-		Fullname: u.Fullname,
+		Username: req.Username,
+		Email:    req.Email,
+		Password: req.Password,
+		Fullname: req.Fullname,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -29,11 +29,11 @@ func (h *GRPCHandler) Register(ctx context.Context, u *api.User) (*api.Success, 
 	}, nil
 }
 
-func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.User, error) {
+func (h *GRPCHandler) GetUser(ctx context.Context, req *api.UserQuery) (*api.User, error) {
 	userQuery := domain.UserQuery{
-		ID:       &uQr.ID,
-		Username: &uQr.Username,
-		Email:    &uQr.Email,
+		ID:       &req.ID,
+		Username: &req.Username,
+		Email:    &req.Email,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -57,11 +57,11 @@ func (h *GRPCHandler) GetUser(ctx context.Context, uQr *api.UserQuery) (*api.Use
 	}, nil
 }
 
-func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api.UserInfo, error) {
+func (h *GRPCHandler) GetUserInfo(ctx context.Context, req *api.UserQuery) (*api.UserInfo, error) {
 	userQuery := domain.UserQuery{
-		ID:       &uQr.ID,
-		Username: &uQr.Username,
-		Email:    &uQr.Email,
+		ID:       &req.ID,
+		Username: &req.Username,
+		Email:    &req.Email,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -79,15 +79,15 @@ func (h *GRPCHandler) GetUserInfo(ctx context.Context, uQr *api.UserQuery) (*api
 	}, nil
 }
 
-func (h *GRPCHandler) ChangePassword(ctx context.Context, uQrNP *api.UserQueryNewPassword) (*api.Success, error) {
+func (h *GRPCHandler) ChangePassword(ctx context.Context, req *api.UserQueryNewPassword) (*api.Success, error) {
 	userQueryNewPassword := domain.UserQueryNewPassword{
 		UserQuery: domain.UserQuery{
-			ID:       &uQrNP.UserQuery.ID,
-			Username: &uQrNP.UserQuery.Username,
-			Email:    &uQrNP.UserQuery.Email,
+			ID:       &req.UserQuery.ID,
+			Username: &req.UserQuery.Username,
+			Email:    &req.UserQuery.Email,
 		},
-		OldPassword: uQrNP.OldPassword,
-		NewPassword: uQrNP.NewPassword,
+		OldPassword: req.OldPassword,
+		NewPassword: req.NewPassword,
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, h.defaultTimeout)
@@ -102,20 +102,20 @@ func (h *GRPCHandler) ChangePassword(ctx context.Context, uQrNP *api.UserQueryNe
 	}, nil
 }
 
-func (h *GRPCHandler) InactivateUser(ctx context.Context, uQr *api.UserQuery) (*api.Success, error) {
-	return h.changeUserStatus(ctx, uQr, h.s.InactivateUser)
+func (h *GRPCHandler) InactivateUser(ctx context.Context, req *api.UserQuery) (*api.Success, error) {
+	return h.changeUserStatus(ctx, req, h.s.InactivateUser)
 }
 
-func (h *GRPCHandler) RestoreUser(ctx context.Context, uQr *api.UserQuery) (*api.Success, error) {
-	return h.changeUserStatus(ctx, uQr, h.s.RestoreUser)
+func (h *GRPCHandler) RestoreUser(ctx context.Context, req *api.UserQuery) (*api.Success, error) {
+	return h.changeUserStatus(ctx, req, h.s.RestoreUser)
 }
 
-func (h *GRPCHandler) BanUser(ctx context.Context, uQr *api.UserQuery) (*api.Success, error) {
-	return h.changeUserStatus(ctx, uQr, h.s.BanUser)
+func (h *GRPCHandler) BanUser(ctx context.Context, req *api.UserQuery) (*api.Success, error) {
+	return h.changeUserStatus(ctx, req, h.s.BanUser)
 }
 
-func (h *GRPCHandler) UnbanUser(ctx context.Context, uQr *api.UserQuery) (*api.Success, error) {
-	return h.changeUserStatus(ctx, uQr, h.s.UnbanUser)
+func (h *GRPCHandler) UnbanUser(ctx context.Context, req *api.UserQuery) (*api.Success, error) {
+	return h.changeUserStatus(ctx, req, h.s.UnbanUser)
 }
 
 func (h *GRPCHandler) changeUserStatus(

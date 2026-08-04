@@ -127,14 +127,6 @@ func main() {
 			BasePath:       cfg.HTTP.BaseHTTPPath,
 			DefaultTimeout: cfg.Settings.DefaultTimeout,
 		},
-		httpHandler.MiddlewareConf{
-			AllowedOrigins:   cfg.Middleware.AllowedOrigins,
-			AllowedMethods:   cfg.Middleware.AllowedMethods,
-			AllowedHeaders:   cfg.Middleware.AllowedHeaders,
-			ExposedHeaders:   cfg.Middleware.ExposedHeaders,
-			AllowCredentials: cfg.Middleware.AllowCredentials,
-			MaxAge:           cfg.Middleware.MaxAge,
-		},
 	)
 
 	gh := grpcHandler.New(
