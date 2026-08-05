@@ -11,6 +11,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type mocks struct {
+	m  *mockrepo
+	h  *mockhasher
+	gc *mockaccessGRPCClient
+}
+
 func TestService_Create(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -25,16 +31,16 @@ func TestService_Create(t *testing.T) {
 	tests := []struct {
 		name      string
 		user      domain.User
-		setupMock func(m *mockrepo, h *mockhasher)
-		check     func(t *testing.T, err error, m *mockrepo, h *mockhasher)
+		setupMock func(mks mocks)
+		check     func(t *testing.T, err error, mks mocks)
 	}{
 		{
 			name: "validation empty user error",
 			user: domain.User{},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -44,10 +50,10 @@ func TestService_Create(t *testing.T) {
 				Password: "12345WWw##3",
 				Fullname: "John Doe",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -57,10 +63,10 @@ func TestService_Create(t *testing.T) {
 				Password: "12345WWw##3",
 				Fullname: "John Doe",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -70,10 +76,10 @@ func TestService_Create(t *testing.T) {
 				Email:    "example@example.com",
 				Fullname: "John Doe",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -83,10 +89,10 @@ func TestService_Create(t *testing.T) {
 				Email:    "example@example.com",
 				Password: "12345WWw##3",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -97,10 +103,10 @@ func TestService_Create(t *testing.T) {
 				Password: "12345WWw##3",
 				Fullname: "John Doe",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -111,10 +117,10 @@ func TestService_Create(t *testing.T) {
 				Password: "12345",
 				Fullname: "John Doe",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
@@ -125,72 +131,44 @@ func TestService_Create(t *testing.T) {
 				Password: "12345WWw##3",
 				Fullname: "John",
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
-				m.AssertNotCalled(t, "Exist", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
-			},
-		},
-		{
-			name: "exist returns error",
-			user: validUser,
-			setupMock: func(m *mockrepo, h *mockhasher) {
-				m.On("Exist", mock.Anything, mock.Anything).
-					Return(false, fmt.Errorf("db error")).Once()
-			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
-				require.Error(t, err)
-				m.AssertNotCalled(t, "Create", mock.Anything, mock.Anything)
-				h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
-			},
-		},
-		{
-			name: "user already exists",
-			user: validUser,
-			setupMock: func(m *mockrepo, h *mockhasher) {
-				m.On("Exist", mock.Anything, mock.Anything).
-					Return(true, nil).Once()
-			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
-				require.Error(t, err)
-				m.AssertNotCalled(t, "Create", mock.Anything, mock.Anything)
+				mks.h.AssertNotCalled(t, "Hash", mock.Anything, mock.Anything)
+				mks.gc.AssertNotCalled(t, "BindUserRole", mock.Anything, mock.Anything)
 			},
 		},
 		{
 			name: "create fails",
 			user: validUser,
-			setupMock: func(m *mockrepo, h *mockhasher) {
-				m.On("Exist", mock.Anything, mock.Anything).
-					Return(false, nil).Once()
-
-				h.On("Hash", validUser.Password).
+			setupMock: func(mks mocks) {
+				mks.h.On("Hash", validUser.Password).
 					Return("hashed_password", nil).Once()
 
-				m.On("Create", mock.Anything, mock.Anything).
+				mks.m.On("Create", mock.Anything, mock.Anything).
 					Return(fmt.Errorf("db error")).Once()
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.Error(t, err)
 			},
 		},
 		{
 			name: "success",
 			user: validUser,
-			setupMock: func(m *mockrepo, h *mockhasher) {
-				m.On("Exist", mock.Anything, mock.Anything).
-					Return(false, nil).Once()
-
-				h.On("Hash", validUser.Password).
+			setupMock: func(mks mocks) {
+				mks.h.On("Hash", validUser.Password).
 					Return("hashed_password", nil).Once()
 
-				m.On("Create", mock.Anything, mock.MatchedBy(func(u domain.User) bool {
+				mks.m.On("Create", mock.Anything, mock.MatchedBy(func(u domain.User) bool {
 					return u.ID != "" &&
 						u.PasswordHash != "" &&
 						u.PasswordHash != u.Password &&
 						!u.CreatedAt.IsZero()
 				})).Return(nil).Once()
+
+				mks.gc.On("BindUserRole", mock.Anything, mock.Anything).
+					Return(nil).Once()
 			},
-			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+			check: func(t *testing.T, err error, mks mocks) {
 				require.NoError(t, err)
 			},
 		},
@@ -205,12 +183,20 @@ func TestService_Create(t *testing.T) {
 			s := New(mockRepo, hasherRepo, accessGRPCClient)
 
 			if tt.setupMock != nil {
-				tt.setupMock(mockRepo, hasherRepo)
+				tt.setupMock(mocks{
+					m:  mockRepo,
+					h:  hasherRepo,
+					gc: accessGRPCClient,
+				})
 			}
 
 			err := s.Create(ctx, tt.user)
 
-			tt.check(t, err, mockRepo, hasherRepo)
+			tt.check(t, err, mocks{
+				m:  mockRepo,
+				h:  hasherRepo,
+				gc: accessGRPCClient,
+			})
 
 			hasherRepo.AssertExpectations(t)
 			mockRepo.AssertExpectations(t)
