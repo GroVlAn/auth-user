@@ -22,7 +22,6 @@ require-template-schema-exists: true
 template: testify
 template-schema: '{{.Template}}.schema.json'
 packages:
-  github.com/GroVlAn/auth-user:
+  github.com/GroVlAn/auth-user/internal/service:
     config:
-      recursive: true
       all: true
