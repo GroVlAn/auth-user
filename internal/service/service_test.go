@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -138,6 +139,17 @@ func TestService_Create(t *testing.T) {
 			},
 		},
 		{
+			name: "failed hash password",
+			user: validUser,
+			setupMock: func(mks mocks) {
+				mks.h.On("Hash", validUser.Password).
+					Return("", errors.New("hash error")).Once()
+			},
+			check: func(t *testing.T, err error, mks mocks) {
+				require.ErrorContains(t, err, "creating password hash")
+			},
+		},
+		{
 			name: "create fails",
 			user: validUser,
 			setupMock: func(mks mocks) {
@@ -148,7 +160,41 @@ func TestService_Create(t *testing.T) {
 					Return(fmt.Errorf("db error")).Once()
 			},
 			check: func(t *testing.T, err error, mks mocks) {
-				require.Error(t, err)
+				require.ErrorContains(t, err, "db error")
+			},
+		},
+		{
+			name: "failed bind user's role",
+			user: validUser,
+			setupMock: func(mks mocks) {
+				mks.h.On("Hash", validUser.Password).
+					Return("hashed_password", nil).Once()
+				mks.m.On("Create", mock.Anything, mock.Anything).
+					Return(nil).Once()
+				mks.gc.On("BindUserRole", mock.Anything, mock.Anything).
+					Return(errors.New("bind user role error")).Once()
+				mks.m.On("DeleteUser", mock.Anything, mock.Anything).
+					Return(nil).Once()
+			},
+			check: func(t *testing.T, err error, mkc mocks) {
+				require.ErrorContains(t, err, "bind user role error")
+			},
+		},
+		{
+			name: "failed delete user after binding user's role",
+			user: validUser,
+			setupMock: func(mks mocks) {
+				mks.h.On("Hash", validUser.Password).
+					Return("hashed_password", nil).Once()
+				mks.m.On("Create", mock.Anything, mock.Anything).
+					Return(nil).Once()
+				mks.gc.On("BindUserRole", mock.Anything, mock.Anything).
+					Return(errors.New("bind user role error")).Once()
+				mks.m.On("DeleteUser", mock.Anything, mock.Anything).
+					Return(errors.New("delete not binding user")).Once()
+			},
+			check: func(t *testing.T, err error, mkc mocks) {
+				require.ErrorContains(t, err, "delete not binding user")
 			},
 		},
 		{
@@ -159,9 +205,12 @@ func TestService_Create(t *testing.T) {
 					Return("hashed_password", nil).Once()
 
 				mks.m.On("Create", mock.Anything, mock.MatchedBy(func(u domain.User) bool {
-					return u.ID != "" &&
-						u.PasswordHash != "" &&
-						u.PasswordHash != u.Password &&
+					return u.Username == validUser.Username &&
+						u.Email == validUser.Email &&
+						u.Fullname == validUser.Fullname &&
+						u.PasswordHash == "hashed_password" &&
+						u.Password == validUser.Password &&
+						u.ID != "" &&
 						!u.CreatedAt.IsZero()
 				})).Return(nil).Once()
 
@@ -456,6 +505,25 @@ func TestService_UpdatePassword(t *testing.T) {
 
 				h.On("Compare", existingUser.PasswordHash, validQueryNewPassword.OldPassword).
 					Return(nil).Twice()
+			},
+			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
+				require.Error(t, err)
+			},
+		},
+		{
+			name:  "failed hash new password",
+			query: validQueryNewPassword,
+			setupMock: func(m *mockrepo, h *mockhasher) {
+				m.On("User", mock.Anything, validQueryNewPassword.UserQuery).
+					Return(existingUser, nil).Once()
+
+				h.On("Compare", existingUser.PasswordHash, validQueryNewPassword.OldPassword).
+					Return(nil).Once()
+				h.On("Compare", validQueryNewPassword.OldPassword, validQueryNewPassword.NewPassword).
+					Return(fmt.Errorf("error not same")).Once()
+
+				h.On("Hash", validQueryNewPassword.NewPassword).
+					Return("", errors.New("hash error")).Once()
 			},
 			check: func(t *testing.T, err error, m *mockrepo, h *mockhasher) {
 				require.Error(t, err)
