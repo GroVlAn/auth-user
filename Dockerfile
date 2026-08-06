@@ -12,7 +12,6 @@ RUN go build -o user ./cmd/main.go
 
 FROM scratch
 COPY --from=builder /app/user /user
-COPY .env .
 COPY ./configs ./configs
 EXPOSE 9082 9012
 
