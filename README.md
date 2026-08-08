@@ -54,6 +54,7 @@ The exact operations depend on the API exposed by the service.
 ## Security
 
 The service follows several security principles:
+1
 
 - Passwords are never stored in plain text.
 - Passwords are hashed before persistence.
