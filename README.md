@@ -39,7 +39,6 @@ auth-user/
 │   │   └── config.go               # Configuration parsing and loading
 │   ├── domain/
 │   │   ├── user.go                 # Domain models (User, etc.)
-│   │   ├── request.go              # Request DTOs
 │   │   └── response.go             # Response DTOs
 │   ├── handler/
 │   │   ├── http-handler/
