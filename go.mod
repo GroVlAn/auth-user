@@ -4,16 +4,17 @@ go 1.25.1
 
 require (
 	github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635
-	github.com/GroVlAn/auth-base v0.0.0-20260801082730-39e33b8e9214
+	github.com/GroVlAn/auth-base v0.0.0-20260810085448-d21f2ae08a03
 	github.com/go-chi/chi v1.5.5
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jmoiron/sqlx v1.4.0
-	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.12.0
 	github.com/rs/zerolog v1.35.1
 	google.golang.org/grpc v1.81.1
 )
+
+require github.com/joho/godotenv v1.5.1 // indirect
 
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

@@ -4,8 +4,8 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635 h1:zEJ6oXIFPQWompTQMROOw8mHCcRxmNHcVivTVQC0680=
 github.com/GroVlAn/auth-api v0.0.0-20260724101055-c66c92dfb635/go.mod h1:yo5d2rHjM3vAKMXPokMVxsDinlf55YsA3mNlGgg7/SE=
-github.com/GroVlAn/auth-base v0.0.0-20260801082730-39e33b8e9214 h1:IOXvO+bLAPlFE2JzG5eH4zgSN6K5XCcH2Yj0ioTUM/Y=
-github.com/GroVlAn/auth-base v0.0.0-20260801082730-39e33b8e9214/go.mod h1:72XR7IVG9PPff+lPPjNk32iIWdheHEb436nGraWd2MM=
+github.com/GroVlAn/auth-base v0.0.0-20260810085448-d21f2ae08a03 h1:6jAIVLKHgCJsjWUftwJuSEWR0Dm7vuChCMU4OJgwpOk=
+github.com/GroVlAn/auth-base v0.0.0-20260810085448-d21f2ae08a03/go.mod h1:3zOveTAvlT/AjI4izdBO8l0GINTQlWUaSRVGFMx6ci8=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
